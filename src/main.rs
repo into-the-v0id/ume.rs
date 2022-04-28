@@ -3,7 +3,7 @@ use ume8::decode::DecodeUnchecked;
 mod ume8;
 
 fn main() {
-    let bytes: [u8; 4] = [
+    let bytes = [
         // a
         0b01100001,
         // ö
