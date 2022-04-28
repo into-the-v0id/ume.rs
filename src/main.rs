@@ -13,7 +13,7 @@ fn main() {
         0b01110101,
     ];
 
-    let mut decoder = DecodeUnchecked::<u32, _>::new(bytes.iter());
+    let mut decoder = DecodeUnchecked::<_, u32>::new(bytes.iter());
     dbg!(decoder.next());
     dbg!(decoder.next());
     dbg!(decoder.next());

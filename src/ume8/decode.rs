@@ -8,19 +8,19 @@ const MASK_SEQ_END: u8 = 0b00100000;
 
 #[derive(Clone)]
 #[must_use = "iterators are lazy and do nothing unless consumed"]
-pub struct DecodeUnchecked<'a, D, I>
+pub struct DecodeUnchecked<'a, I, D>
     where
+        I: Iterator<Item=&'a u8>,
         D: From<u8> + Shl<u8, Output=D> + BitOr<D, Output=D>,
-        I: Iterator<Item=&'a u8>
 {
     pub iter: I,
     data: PhantomData<D>,
 }
 
-impl <'a, D, I> DecodeUnchecked<'a, D, I>
+impl <'a, I, D> DecodeUnchecked<'a, I, D>
     where
+        I: Iterator<Item=&'a u8>,
         D: From<u8> + Shl<u8, Output=D> + BitOr<D, Output=D>,
-        I: Iterator<Item=&'a u8>
 {
     #[inline]
     pub fn new(iter: I) -> Self {
@@ -31,10 +31,10 @@ impl <'a, D, I> DecodeUnchecked<'a, D, I>
     }
 }
 
-impl <'a, D, I> Iterator for DecodeUnchecked<'a, D, I>
+impl <'a, I, D> Iterator for DecodeUnchecked<'a, I, D>
     where
+        I: Iterator<Item=&'a u8>,
         D: From<u8> + Shl<u8, Output=D> + BitOr<D, Output=D>,
-        I: Iterator<Item=&'a u8>
 {
     type Item = D;
 
