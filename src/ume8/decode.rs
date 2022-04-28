@@ -22,6 +22,7 @@ impl <'a, D, I> DecodeUnchecked<'a, D, I>
         D: From<u8> + Shl<u8, Output=D> + BitOr<D, Output=D>,
         I: Iterator<Item=&'a u8>
 {
+    #[inline]
     pub fn new(iter: I) -> Self {
         Self {
             iter,
