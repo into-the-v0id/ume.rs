@@ -14,7 +14,7 @@ fn main() {
     ];
 
     let mut decoder = DecodeUnchecked {
-        iter: bytes.into_iter(),
+        iter: bytes.iter(),
     };
     dbg!(decoder.next());
     dbg!(decoder.next());
