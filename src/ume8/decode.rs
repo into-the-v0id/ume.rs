@@ -1,6 +1,6 @@
 const MASK_SEQ: u8 = 0b10000000;
 const MASK_SEQ_START_DATA: u8 = 0b00111111;
-const MASK_SEQ_MIDDLE_DATA: u8 = 0b00011111;
+const MASK_SEQ_CONT_DATA: u8 = 0b00011111;
 const MASK_SEQ_END: u8 = 0b00100000;
 
 #[derive(Clone)]
@@ -24,7 +24,7 @@ impl <'a, I: Iterator<Item=&'a u8>> Iterator for DecodeUnchecked<'a, I> {
         loop {
             let next_byte = *self.iter.next().unwrap();
 
-            data = (data << 5) | u32::from(next_byte & MASK_SEQ_MIDDLE_DATA);
+            data = (data << 5) | u32::from(next_byte & MASK_SEQ_CONT_DATA);
 
             if next_byte & MASK_SEQ_END != 0 {
                 break;
