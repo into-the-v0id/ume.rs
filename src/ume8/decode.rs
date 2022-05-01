@@ -1,10 +1,6 @@
 use std::marker::PhantomData;
 use std::ops::{BitOr, Shl};
-
-const MASK_SEQ: u8 = 0b10000000;
-const MASK_SEQ_START_DATA: u8 = 0b00111111;
-const MASK_SEQ_CONT_DATA: u8 = 0b00011111;
-const MASK_SEQ_END: u8 = 0b00100000;
+use crate::ume8::{MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_END, MASK_SEQ_START_DATA};
 
 #[derive(Clone)]
 #[must_use = "iterators are lazy and do nothing unless consumed"]
