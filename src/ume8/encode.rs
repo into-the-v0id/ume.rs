@@ -3,79 +3,55 @@ use std::vec::IntoIter;
 use crate::ume8::{MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_START_DATA};
 use crate::ume8::util::{count_data_bits, DataBytes};
 
-// #[derive(Clone)]
-// #[must_use = "iterators are lazy and do nothing unless consumed"]
-// pub struct EncodeUnchecked<'a, I>
-//     where I: Iterator<Item=&'a [u8]>,
-// {
-//     pub iter: I,
-//     current_sequence: IntoIter<u8>,
-// }
-//
-// impl <'a, I> EncodeUnchecked<'a, I>
-//     where I: Iterator<Item=&'a [u8]>,
-// {
-//     #[inline]
-//     pub fn new(iter: I) -> Self {
-//         Self {
-//             iter,
-//             current_sequence: encode_buffer[0..0].iter();
-//         }
-//     }
-// }
-//
-// impl <'a, I> Iterator for EncodeUnchecked<'a, I>
-//     where I: Iterator<Item=&'a [u8]>,
-// {
-//     type Item = u8;
-//
-//     #[inline]
-//     fn next(&mut self) -> Option<Self::Item> {
-//         // continue yielding of current sequence
-//         if let Some(next_sequence_byte) = self.current_sequence.next() {
-//             return Some(next_sequence_byte);
-//         }
-//
-//         let bytes = self.iter.next()?;
-//
-//         // start new sequence
-//         self.current_sequence = encode_sequence_unchecked(bytes, &mut [0u8; 4])
-//             .to_owned()
-//             .into_iter();
-//
-//         Some(self.current_sequence.next().unwrap())
-//     }
-// }
-//
-// #[inline]
-// fn encode_sequence_unchecked<'a>(bytes: &[u8], buffer: &'a mut [u8]) -> &'a mut [u8]
-// {
-//     let bytes_len = bytes.len();
-//
-//     // singleton
-//     if bytes_len == 1 && bytes[0] & MASK_SEQ == 0 {
-//         buffer[0] = bytes[0];
-//
-//         return &mut buffer[0..1];
-//     }
-//
-//     let bytes_last_index = bytes_len - 1;
-//     let mut buffer_next_index = bytes_last_index;
-//     for (index, byte) in bytes.iter().enumerate().rev() {
-//         buffer[buffer_next_index] = match index {
-//             // first
-//             0 => (byte & MASK_SEQ_START_DATA) | 0b11000000,
-//
-//             // last
-//             bytes_last_index => (byte & MASK_SEQ_CONT_DATA) | 0b10100000,
-//
-//             _ => (byte & MASK_SEQ_CONT_DATA) | 0b10000000,
-//         };
-//         buffer_next_index -= 1;
-//     }
-//
-//     return &mut buffer[(buffer_next_index + 1)..];
-// }
+#[derive(Clone)]
+#[must_use = "iterators are lazy and do nothing unless consumed"]
+pub struct EncodeUnchecked<'a, SeqIter, I>
+    where
+        SeqIter: Iterator<Item=&'a u8> + Clone,
+        I: Iterator<Item=SeqIter>,
+{
+    pub iter: I,
+    pub current_sequence: Option<EncodeSequenceUnchecked<'a, SeqIter>>,
+}
+
+impl <'a, SeqIter, I> EncodeUnchecked<'a, SeqIter, I>
+    where
+        SeqIter: Iterator<Item=&'a u8> + Clone,
+        I: Iterator<Item=SeqIter>,
+{
+    #[inline]
+    pub fn new(iter: I) -> Self {
+        Self {
+            iter,
+            current_sequence: None,
+        }
+    }
+}
+
+impl <'a, SeqIter, I> Iterator for EncodeUnchecked<'a, SeqIter, I>
+    where
+        SeqIter: Iterator<Item=&'a u8> + Clone,
+        I: Iterator<Item=SeqIter>,
+{
+    type Item = u8;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current_sequence.is_none() {
+            let sequence_iter = self.iter.next()?;
+            self.current_sequence = Some(EncodeSequenceUnchecked::new(sequence_iter));
+        }
+
+        return match self.current_sequence.as_mut().unwrap().next() {
+            Some(x) => Some(x),
+            None => {
+                self.current_sequence = None;
+                self.next()
+            },
+        };
+    }
+}
+
 
 #[derive(Clone)]
 #[must_use = "iterators are lazy and do nothing unless consumed"]
@@ -195,6 +171,7 @@ impl <'a, I> Iterator for EncodeSequenceUnchecked<'a, I>
         return Some(self.next_bits(5)? | 0b10000000);
     }
 }
+
 
 pub fn bytes_needed(data_bits: usize) -> usize {
     if data_bits <= 7 {

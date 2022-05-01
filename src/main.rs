@@ -1,5 +1,5 @@
 use ume8::decode::DecodeUnchecked;
-use crate::ume8::encode::EncodeSequenceUnchecked;
+use crate::ume8::encode::{EncodeSequenceUnchecked, EncodeUnchecked};
 
 mod ume8;
 
@@ -38,10 +38,30 @@ fn main() {
         );
     }
 
-    let chars = "aöu".chars()
+    let encoded_chars = "aöu😀".chars()
         .map(|c| (c as u32).to_be_bytes())
         .map(|b| EncodeSequenceUnchecked::new(b.iter()).collect::<Vec<u8>>())
         .map(|b| b.iter().map(|b| format!("{:#010b}", b)).collect::<Vec<String>>())
         .collect::<Vec<Vec<String>>>();
-    dbg!(chars);
+    dbg!(encoded_chars);
+
+    let raw_chars = "aöu😀".chars()
+        .map(|c| (c as u32).to_be_bytes())
+        .collect::<Vec<[u8; 4]>>();
+
+    let encoded_chars = EncodeUnchecked::new(
+        raw_chars.iter()
+            .map(|b| b.iter())
+    ).collect::<Vec<u8>>();
+    dbg!(
+        encoded_chars
+            .iter()
+            .map(|b| format!("{:#010b}", b))
+            .collect::<Vec<String>>()
+    );
+
+    let decoded_chars = DecodeUnchecked::<_, u32>::new(encoded_chars.iter())
+        .map(|c| char::from_u32(c).unwrap())
+        .collect::<String>();
+    dbg!(decoded_chars);
 }
