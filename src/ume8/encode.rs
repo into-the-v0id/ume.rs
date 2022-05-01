@@ -166,7 +166,7 @@ impl <'a, I> Iterator for EncodeSequenceUnchecked<'a, I>
 
         self.bytes_yielded += 1;
 
-        return Some(self.next_bits(5)? | 0b10000000);
+        Some(self.next_bits(5)? | 0b10000000)
     }
 }
 
