@@ -152,7 +152,6 @@ impl <'a, I> Iterator for EncodeSequenceUnchecked<'a, I>
             self.bytes_yielded += 1;
 
             let take_bits = self.data_bits - ((self.bytes_needed - 1) * 5);
-            dbg!(take_bits);
 
             return Some(self.next_bits(take_bits as u8)? | 0b11000000);
         }
