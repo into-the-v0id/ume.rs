@@ -1,6 +1,4 @@
 use std::cmp::min;
-use std::vec::IntoIter;
-use crate::ume8::{MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_START_DATA};
 use crate::ume8::util::{count_data_bits, DataBytes};
 
 #[derive(Clone)]
