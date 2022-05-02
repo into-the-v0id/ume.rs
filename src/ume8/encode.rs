@@ -1,4 +1,5 @@
 use std::vec::IntoIter;
+use crate::ume8::{MASK_SEQ_CONT_DATA, MASK_SEQ_START_DATA};
 
 #[derive(Clone)]
 #[must_use = "iterators are lazy and do nothing unless consumed"]
@@ -52,8 +53,8 @@ pub fn encode_sequence_unchecked(data: u32) -> Vec<u8> {
     if data & 0b11111111_11111111_11111000_00000000 == 0 {
         let mut bytes = Vec::with_capacity(3);
 
-        bytes.push((((data >> 5) & 0b00111111) | 0b11000000) as u8);
-        bytes.push(((data & 0b00011111) | 0b10100000) as u8);
+        bytes.push((((data >> 5) as u8) & MASK_SEQ_START_DATA) | 0b11000000);
+        bytes.push(((data as u8) & MASK_SEQ_CONT_DATA) | 0b10100000);
 
         return bytes;
     }
@@ -62,9 +63,9 @@ pub fn encode_sequence_unchecked(data: u32) -> Vec<u8> {
     if data & 0b11111111_11111111_00000000_00000000 == 0 {
         let mut bytes = Vec::with_capacity(3);
 
-        bytes.push((((data >> 5+5) & 0b00111111) | 0b11000000) as u8);
-        bytes.push((((data >> 5) & 0b00011111) | 0b10000000) as u8);
-        bytes.push(((data & 0b00011111) | 0b10100000) as u8);
+        bytes.push((((data >> 5+5) as u8) & MASK_SEQ_START_DATA) | 0b11000000);
+        bytes.push((((data >> 5) as u8) & MASK_SEQ_CONT_DATA) | 0b10000000);
+        bytes.push(((data as u8) & MASK_SEQ_CONT_DATA) | 0b10100000);
 
         return bytes;
     }
@@ -73,10 +74,10 @@ pub fn encode_sequence_unchecked(data: u32) -> Vec<u8> {
     if data & 0b11111111_11100000_00000000_00000000 == 0 {
         let mut bytes = Vec::with_capacity(4);
 
-        bytes.push((((data >> 5+5+5) & 0b00111111) | 0b11000000) as u8);
-        bytes.push((((data >> 5+5) & 0b00011111) | 0b10000000) as u8);
-        bytes.push((((data >> 5) & 0b00011111) | 0b10000000) as u8);
-        bytes.push(((data & 0b00011111) | 0b10100000) as u8);
+        bytes.push((((data >> 5+5+5) as u8) & MASK_SEQ_START_DATA) | 0b11000000);
+        bytes.push((((data >> 5+5) as u8) & MASK_SEQ_CONT_DATA) | 0b10000000);
+        bytes.push((((data >> 5) as u8) & MASK_SEQ_CONT_DATA) | 0b10000000);
+        bytes.push(((data as u8) & MASK_SEQ_CONT_DATA) | 0b10100000);
 
         return bytes;
     }
