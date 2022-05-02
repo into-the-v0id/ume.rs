@@ -41,45 +41,37 @@ impl <I> Iterator for EncodeUnchecked<I>
 #[inline]
 pub fn encode_sequence_unchecked(data: u32) -> Vec<u8> {
     // 1 byte
-    if data & 0b11111111_11111111_11111111_10000000 == 0 {
-        let mut bytes = Vec::with_capacity(1);
-
-        bytes.push(data as u8);
-
-        return bytes;
+    if data & 0b1111_1111_1111_1111_1111_1111_1000_0000 == 0 {
+        return vec![
+            data as u8,
+        ];
     }
 
     // 2 bytes
-    if data & 0b11111111_11111111_11111000_00000000 == 0 {
-        let mut bytes = Vec::with_capacity(2);
-
-        bytes.push((((data >> 5) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START);
-        bytes.push(((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END);
-
-        return bytes;
+    if data & 0b1111_1111_1111_1111_1111_1000_0000_0000 == 0 {
+        return vec![
+            (((data >> 5) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START,
+            ((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END,
+        ];
     }
 
     // 3 bytes
-    if data & 0b11111111_11111111_00000000_00000000 == 0 {
-        let mut bytes = Vec::with_capacity(3);
-
-        bytes.push((((data >> 5+5) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START);
-        bytes.push((((data >> 5) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ);
-        bytes.push(((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END);
-
-        return bytes;
+    if data & 0b1111_1111_1111_1111_0000_0000_0000_0000 == 0 {
+        return vec![
+            (((data >> (5+5)) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START,
+            (((data >> 5) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ,
+            ((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END,
+        ];
     }
 
     // 4 bytes
-    if data & 0b11111111_11100000_00000000_00000000 == 0 {
-        let mut bytes = Vec::with_capacity(4);
-
-        bytes.push((((data >> 5+5+5) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START);
-        bytes.push((((data >> 5+5) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ);
-        bytes.push((((data >> 5) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ);
-        bytes.push(((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END);
-
-        return bytes;
+    if data & 0b1111_1111_1110_0000_0000_0000_0000_0000 == 0 {
+        return vec![
+            (((data >> (5+5+5)) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START,
+            (((data >> (5+5)) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ,
+            (((data >> 5) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ,
+            ((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END,
+        ];
     }
 
     panic!("trying to encode more than 21 bits of data");

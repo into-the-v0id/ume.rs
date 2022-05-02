@@ -7,7 +7,7 @@ fn main() {
     let chars = vec!['a', 'ö', 'u', '😀'];
     dbg!(chars.clone());
 
-    let raw_chars = chars.clone().into_iter()
+    let raw_chars = chars.into_iter()
         .map(|c| c as u32)
         .collect::<Vec<u32>>();
     dbg!(
@@ -16,7 +16,7 @@ fn main() {
             .collect::<Vec<String>>()
     );
 
-    let encoded_chars = EncodeUnchecked::new(raw_chars.clone().into_iter())
+    let encoded_chars = EncodeUnchecked::new(raw_chars.into_iter())
         .collect::<Vec<u8>>();
     dbg!(
         encoded_chars.iter()
@@ -24,7 +24,7 @@ fn main() {
             .collect::<Vec<String>>()
     );
 
-    let decoded_raw_chars = DecodeUnchecked::new(encoded_chars.clone().into_iter())
+    let decoded_raw_chars = DecodeUnchecked::new(encoded_chars.into_iter())
         .collect::<Vec<u32>>();
     dbg!(
         decoded_raw_chars.iter()
@@ -32,7 +32,7 @@ fn main() {
             .collect::<Vec<String>>()
     );
 
-    let decoded_chars = decoded_raw_chars.clone().into_iter()
+    let decoded_chars = decoded_raw_chars.into_iter()
         .map(|c| char::from_u32(c).unwrap())
         .collect::<Vec<char>>();
     dbg!(decoded_chars);
