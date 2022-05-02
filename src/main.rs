@@ -48,6 +48,12 @@ fn main() {
     let raw_chars = "aöu😀".chars()
         .map(|c| (c as u32).to_be_bytes())
         .collect::<Vec<[u8; 4]>>();
+    dbg!(
+        raw_chars
+            .iter()
+            .map(|b| b.iter().map(|b| format!("{:#010b}", b)).collect::<Vec<String>>())
+            .collect::<Vec<Vec<String>>>()
+    );
 
     let encoded_chars = EncodeUnchecked::new(
         raw_chars.iter()
