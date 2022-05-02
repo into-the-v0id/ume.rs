@@ -1,73 +1,39 @@
-use ume8::decode::DecodeUnchecked;
-use crate::ume8::encode::{EncodeSequenceUnchecked, EncodeUnchecked};
+use crate::ume8::decode::DecodeUnchecked;
+use crate::ume8::encode::EncodeUnchecked;
 
 mod ume8;
 
 fn main() {
-    let bytes = [
-        // a
-        0b01100001,
-        // ö
-        0b11000111,
-        0b10110110,
-        // u
-        0b01110101,
-    ];
+    let chars = vec!['a', 'ö', 'u', '😀'];
+    dbg!(chars.clone());
 
-    let mut decoder = DecodeUnchecked::<_, u32>::new(bytes.iter());
-    dbg!(decoder.next());
-    dbg!(decoder.next());
-    dbg!(decoder.next());
-    dbg!(decoder.next());
-    dbg!(decoder.next());
-
-    let sequences = [
-        vec![0b00000001],
-        vec![0b10000001],
-        vec![0b00000000, 0b00000001],
-        vec![0b00010000, 0b00000001],
-        vec![0b00000000, 0b00000000, 0b00000001],
-        vec![0b00000100, 0b00010000, 0b00000001],
-    ];
-
-    for sequence in sequences {
-        dbg!(
-            EncodeSequenceUnchecked::new(sequence.iter())
-                .map(|b| format!("{:#010b}", b))
-                .collect::<Vec<String>>()
-        );
-    }
-
-    let encoded_chars = "aöu😀".chars()
-        .map(|c| (c as u32).to_be_bytes())
-        .map(|b| EncodeSequenceUnchecked::new(b.iter()).collect::<Vec<u8>>())
-        .map(|b| b.iter().map(|b| format!("{:#010b}", b)).collect::<Vec<String>>())
-        .collect::<Vec<Vec<String>>>();
-    dbg!(encoded_chars);
-
-    let raw_chars = "aöu😀".chars()
-        .map(|c| (c as u32).to_be_bytes())
-        .collect::<Vec<[u8; 4]>>();
+    let raw_chars = chars.clone().into_iter()
+        .map(|c| c as u32)
+        .collect::<Vec<u32>>();
     dbg!(
-        raw_chars
-            .iter()
-            .map(|b| b.iter().map(|b| format!("{:#010b}", b)).collect::<Vec<String>>())
-            .collect::<Vec<Vec<String>>>()
+        raw_chars.iter()
+            .map(|b| format!("{:#034b}", b))
+            .collect::<Vec<String>>()
     );
 
-    let encoded_chars = EncodeUnchecked::new(
-        raw_chars.iter()
-            .map(|b| b.iter())
-    ).collect::<Vec<u8>>();
+    let encoded_chars = EncodeUnchecked::new(raw_chars.clone().into_iter())
+        .collect::<Vec<u8>>();
     dbg!(
-        encoded_chars
-            .iter()
+        encoded_chars.iter()
             .map(|b| format!("{:#010b}", b))
             .collect::<Vec<String>>()
     );
 
-    let decoded_chars = DecodeUnchecked::<_, u32>::new(encoded_chars.iter())
+    let decoded_raw_chars = DecodeUnchecked::new(encoded_chars.clone().into_iter())
+        .collect::<Vec<u32>>();
+    dbg!(
+        decoded_raw_chars.iter()
+            .map(|b| format!("{:#034b}", b))
+            .collect::<Vec<String>>()
+    );
+
+    let decoded_chars = decoded_raw_chars.clone().into_iter()
         .map(|c| char::from_u32(c).unwrap())
-        .collect::<String>();
+        .collect::<Vec<char>>();
     dbg!(decoded_chars);
 }
