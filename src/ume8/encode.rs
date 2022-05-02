@@ -51,7 +51,7 @@ pub fn encode_sequence_unchecked(data: u32) -> Vec<u8> {
 
     // 2 bytes
     if data & 0b11111111_11111111_11111000_00000000 == 0 {
-        let mut bytes = Vec::with_capacity(3);
+        let mut bytes = Vec::with_capacity(2);
 
         bytes.push((((data >> 5) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START);
         bytes.push(((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END);
