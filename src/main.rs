@@ -1,3 +1,5 @@
+#![feature(array_into_iter_constructors)]
+
 use crate::ume8::decode::DecodeUnchecked;
 use crate::ume8::encode::EncodeUnchecked;
 
