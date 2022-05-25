@@ -32,19 +32,19 @@ impl String {
     }
 
     pub fn reserve(&mut self, additional: usize) {
-        self.bytes.reserve(additional)
+        self.bytes.reserve(additional);
     }
 
     pub fn reserve_exact(&mut self, additional: usize) {
-        self.bytes.reserve_exact(additional)
+        self.bytes.reserve_exact(additional);
     }
 
     pub fn shrink_to_fit(&mut self) {
-        self.bytes.shrink_to_fit()
+        self.bytes.shrink_to_fit();
     }
 
     pub fn shrink_to(&mut self, min_capacity: usize) {
-        self.bytes.shrink_to(min_capacity)
+        self.bytes.shrink_to(min_capacity);
     }
 
     pub fn push(&mut self, ch: char) {
@@ -76,7 +76,7 @@ impl String {
     }
 
     pub fn clear(&mut self) {
-        self.bytes.clear()
+        self.bytes.clear();
     }
 }
 
@@ -133,14 +133,14 @@ impl Debug for String {
 impl Extend<String> for String {
     fn extend<T: IntoIterator<Item=String>>(&mut self, iter: T) {
         iter.into_iter()
-            .for_each(|string| self.bytes.extend(string.bytes))
+            .for_each(|string| self.bytes.extend(string.bytes));
     }
 }
 
 impl <'a> Extend<&'a String> for String {
     fn extend<T: IntoIterator<Item=&'a String>>(&mut self, iter: T) {
         iter.into_iter()
-            .for_each(|string| self.bytes.extend_from_slice(&string.bytes))
+            .for_each(|string| self.bytes.extend_from_slice(&string.bytes));
     }
 }
 
