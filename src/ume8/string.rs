@@ -1,5 +1,6 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
+use std::string::String as StdString;
 use crate::EncodeUnchecked;
 use crate::ume8::decode::{DecodeUnchecked, ToCharUnchecked};
 use crate::ume8::encode::EncodeSequenceUnchecked;
@@ -117,14 +118,14 @@ impl Default for String {
 
 impl Display for String {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let string: std::string::String = self.into();
+        let string: StdString = self.into();
         Display::fmt(&string, f)
     }
 }
 
 impl Debug for String {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let string: std::string::String = self.into();
+        let string: StdString = self.into();
         Debug::fmt(&string, f)
     }
 }
@@ -189,14 +190,14 @@ impl <'a, I: Into<&'a str>> From<I> for String {
     }
 }
 
-impl From<&String> for std::string::String {
-    fn from(s: &String) -> std::string::String {
-        s.chars().collect::<std::string::String>()
+impl From<&String> for StdString {
+    fn from(s: &String) -> StdString {
+        s.chars().collect::<StdString>()
     }
 }
 
-impl From<String> for std::string::String {
-    fn from(s: String) -> std::string::String {
-        s.chars().collect::<std::string::String>()
+impl From<String> for StdString {
+    fn from(s: String) -> StdString {
+        s.chars().collect::<StdString>()
     }
 }

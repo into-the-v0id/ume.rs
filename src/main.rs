@@ -2,6 +2,7 @@
 
 use crate::ume8::decode::DecodeUnchecked;
 use crate::ume8::encode::EncodeUnchecked;
+use crate::ume8::string::String as Ume8String;
 
 mod ume8;
 
@@ -11,10 +12,10 @@ fn main() {
 
 #[allow(dead_code)]
 fn string() {
-    let string: crate::ume8::string::String = "hello world".into();
+    let string: Ume8String = "hello world".into();
     println!("{}", string);
 
-    let mut str = crate::ume8::string::String::new();
+    let mut str = Ume8String::new();
     str.push('a');
     str.push('ö');
     str.push('u');
