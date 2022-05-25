@@ -46,3 +46,32 @@ impl <I> Iterator for DecodeUnchecked<I>
         Some(data)
     }
 }
+
+#[derive(Clone)]
+pub struct ToCharUnchecked<Iter>
+    where Iter: Iterator<Item=u32>,
+{
+    iter: Iter,
+}
+
+impl <Iter> ToCharUnchecked<Iter>
+    where Iter: Iterator<Item=u32>,
+{
+    pub unsafe fn new(iter: Iter) -> Self {
+        Self {
+            iter
+        }
+    }
+}
+
+impl <Iter> Iterator for ToCharUnchecked<Iter>
+    where Iter: Iterator<Item=u32>,
+{
+    type Item = char;
+
+    #[inline]
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next()
+            .map(|data| unsafe { char::from_u32_unchecked(data) })
+    }
+}

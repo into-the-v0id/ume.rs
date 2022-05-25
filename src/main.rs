@@ -6,6 +6,24 @@ use crate::ume8::encode::EncodeUnchecked;
 mod ume8;
 
 fn main() {
+    string();
+}
+
+#[allow(dead_code)]
+fn string() {
+    let string: crate::ume8::string::String = "hello world".into();
+    println!("{}", string);
+
+    let mut str = crate::ume8::string::String::new();
+    str.push('a');
+    str.push('ö');
+    str.push('u');
+    str.push('😀');
+    println!("{}", str);
+}
+
+#[allow(dead_code)]
+fn encode_decode() {
     let chars = vec!['a', 'ö', 'u', '😀'];
     dbg!(chars.clone());
 
