@@ -201,3 +201,10 @@ impl From<String> for StdString {
         s.chars().collect::<StdString>()
     }
 }
+
+#[macro_export]
+macro_rules! ume8 {
+    ($str:expr) => {
+        $crate::ume8::string::String::from($str)
+    };
+}
