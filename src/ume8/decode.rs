@@ -190,6 +190,33 @@ mod tests {
     }
 
     #[test]
+    fn test_decode_to_char_reverse() {
+        let actual_decoded_data = vec![
+            '😀',
+            'u',
+            'ö',
+            'a',
+        ];
+        let actual_encoded_data: Vec<u8> = vec![
+            97,
+            199, 182,
+            117,
+            195, 157, 144, 160,
+        ];
+
+        let decoder = unsafe {
+            ToCharUnchecked::new(
+                DecodeUnchecked::new(
+                    actual_encoded_data.into_iter()
+                )
+            )
+        };
+        let decoded_data = decoder.rev().collect::<Vec<char>>();
+
+        assert_eq!(decoded_data, actual_decoded_data);
+    }
+
+    #[test]
     fn test_decode_mixed_sequences() {
         let actual_decoded_data: Vec<u32> = vec![
             97,
@@ -206,6 +233,27 @@ mod tests {
 
         let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
         let decoded_data = decoder.collect::<Vec<u32>>();
+
+        assert_eq!(decoded_data, actual_decoded_data);
+    }
+
+    #[test]
+    fn test_decode_mixed_sequences_reverse() {
+        let actual_decoded_data: Vec<u32> = vec![
+            128512,
+            117,
+            246,
+            97,
+        ];
+        let actual_encoded_data: Vec<u8> = vec![
+            97,
+            199, 182,
+            117,
+            195, 157, 144, 160,
+        ];
+
+        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
+        let decoded_data = decoder.rev().collect::<Vec<u32>>();
 
         assert_eq!(decoded_data, actual_decoded_data);
     }
@@ -232,6 +280,27 @@ mod tests {
     }
 
     #[test]
+    fn test_decode_ascii_sequences_reverse() {
+        let actual_decoded_data: Vec<u32> = vec![
+            100,
+            99,
+            98,
+            97,
+        ];
+        let actual_encoded_data: Vec<u8> = vec![
+            97,
+            98,
+            99,
+            100,
+        ];
+
+        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
+        let decoded_data = decoder.rev().collect::<Vec<u32>>();
+
+        assert_eq!(decoded_data, actual_decoded_data);
+    }
+
+    #[test]
     fn test_decode_multibyte_sequences() {
         let actual_decoded_data: Vec<u32> = vec![
             1514,
@@ -246,6 +315,25 @@ mod tests {
 
         let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
         let decoded_data = decoder.collect::<Vec<u32>>();
+
+        assert_eq!(decoded_data, actual_decoded_data);
+    }
+
+    #[test]
+    fn test_decode_multibyte_sequences_reverse() {
+        let actual_decoded_data: Vec<u32> = vec![
+            128512,
+            12701,
+            1514,
+        ];
+        let actual_encoded_data: Vec<u8> = vec![
+            239, 170,
+            204, 140, 189,
+            195, 157, 144, 160,
+        ];
+
+        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
+        let decoded_data = decoder.rev().collect::<Vec<u32>>();
 
         assert_eq!(decoded_data, actual_decoded_data);
     }
