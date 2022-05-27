@@ -26,7 +26,6 @@ impl <I> Iterator for DecodeUnchecked<I>
 {
     type Item = u32;
 
-    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         let first_byte = self.iter.next()?;
         if first_byte & MASK_SEQ == 0 {
@@ -66,7 +65,6 @@ impl <I> DoubleEndedIterator for DecodeUnchecked<I>
     where I: DoubleEndedIterator<Item=u8>,
 {
     // TODO: check again
-    #[inline]
     fn next_back(&mut self) -> Option<Self::Item> {
         let last_byte = self.iter.next_back()?;
         if last_byte & MASK_SEQ == 0 {
@@ -107,6 +105,7 @@ pub struct ToCharUnchecked<Iter>
 impl <Iter> ToCharUnchecked<Iter>
     where Iter: Iterator<Item=u32>,
 {
+    #[inline]
     pub unsafe fn new(iter: Iter) -> Self {
         Self {
             iter
@@ -119,7 +118,6 @@ impl <Iter> Iterator for ToCharUnchecked<Iter>
 {
     type Item = char;
 
-    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next()
             .map(|data| unsafe { char::from_u32_unchecked(data) })

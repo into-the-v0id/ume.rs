@@ -26,7 +26,6 @@ impl <I> Iterator for EncodeUnchecked<I>
 {
     type Item = u8;
 
-    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         if self.current_sequence.is_none() {
             self.current_sequence = Some(EncodeSequenceUnchecked::new(self.iter.next()?));
@@ -50,6 +49,7 @@ pub struct EncodeSequenceUnchecked {
 }
 
 impl EncodeSequenceUnchecked {
+    #[inline]
     pub fn new(data: u32) -> Self {
         Self {
             data,
@@ -61,7 +61,6 @@ impl EncodeSequenceUnchecked {
 impl Iterator for EncodeSequenceUnchecked {
     type Item = u8;
 
-    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         self.current += 1;
 
