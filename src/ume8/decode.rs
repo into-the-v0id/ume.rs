@@ -163,217 +163,91 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_decode_to_char() {
-        let actual_decoded_data = vec![
-            'a',
-            'ö',
-            'u',
-            '😀',
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            97,
-            199, 182,
-            117,
-            195, 157, 144, 160,
-        ];
+    fn test_decode_sequences_to_char() {
+        for (decoded, encoded) in super::super::tests::data() {
+            let decoded_chars = decoded.clone().into_iter()
+                .map(|data| char::from_u32(data).unwrap())
+                .collect::<Vec<char>>();
 
-        let decoder = unsafe {
-            ToCharUnchecked::new(
-                DecodeUnchecked::new(
-                    actual_encoded_data.into_iter()
+            let decoder = unsafe {
+                ToCharUnchecked::new(
+                    DecodeUnchecked::new(
+                        encoded.clone().into_iter()
+                    )
                 )
-            )
-        };
-        let decoded_data = decoder.collect::<Vec<char>>();
+            };
+            let decoder_data = decoder.collect::<Vec<char>>();
 
-        assert_eq!(decoded_data, actual_decoded_data);
+            assert_eq!(decoder_data, decoded_chars);
+        }
     }
 
     #[test]
-    fn test_decode_to_char_reverse() {
-        let actual_decoded_data = vec![
-            '😀',
-            'u',
-            'ö',
-            'a',
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            97,
-            199, 182,
-            117,
-            195, 157, 144, 160,
-        ];
+    fn test_decode_sequences_to_char_reverse() {
+        for (decoded, encoded) in super::super::tests::data() {
+            let decoded_chars_reversed = decoded.iter()
+                .map(|&data| char::from_u32(data).unwrap())
+                .rev()
+                .collect::<Vec<char>>();
 
-        let decoder = unsafe {
-            ToCharUnchecked::new(
-                DecodeUnchecked::new(
-                    actual_encoded_data.into_iter()
+            let decoder = unsafe {
+                ToCharUnchecked::new(
+                    DecodeUnchecked::new(
+                        encoded.clone().into_iter()
+                    )
                 )
-            )
-        };
-        let decoded_data = decoder.rev().collect::<Vec<char>>();
+            };
+            let decoder_data = decoder.rev().collect::<Vec<char>>();
 
-        assert_eq!(decoded_data, actual_decoded_data);
+            assert_eq!(decoder_data, decoded_chars_reversed);
+        }
     }
 
     #[test]
-    fn test_decode_mixed_sequences() {
-        let actual_decoded_data: Vec<u32> = vec![
-            97,
-            246,
-            117,
-            128512,
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            97,
-            199, 182,
-            117,
-            195, 157, 144, 160,
-        ];
+    fn test_decode_sequences() {
+        for (decoded, encoded) in super::super::tests::data() {
+            let decoder = DecodeUnchecked::new(encoded.clone().into_iter());
+            let decoder_data = decoder.collect::<Vec<u32>>();
 
-        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
-        let decoded_data = decoder.collect::<Vec<u32>>();
-
-        assert_eq!(decoded_data, actual_decoded_data);
+            assert_eq!(decoder_data, decoded);
+        }
     }
 
     #[test]
-    fn test_decode_mixed_sequences_reverse() {
-        let actual_decoded_data: Vec<u32> = vec![
-            128512,
-            117,
-            246,
-            97,
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            97,
-            199, 182,
-            117,
-            195, 157, 144, 160,
-        ];
+    fn test_decode_sequences_reverse() {
+        for (decoded, encoded) in super::super::tests::data() {
+            let decoded_reverse = decoded.iter()
+                .map(|&data| data)
+                .rev()
+                .collect::<Vec<u32>>();
 
-        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
-        let decoded_data = decoder.rev().collect::<Vec<u32>>();
+            let decoder = DecodeUnchecked::new(encoded.clone().into_iter());
+            let decoder_data = decoder.rev().collect::<Vec<u32>>();
 
-        assert_eq!(decoded_data, actual_decoded_data);
-    }
-
-    #[test]
-    fn test_decode_ascii_sequences() {
-        let actual_decoded_data: Vec<u32> = vec![
-            97,
-            98,
-            99,
-            100,
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            97,
-            98,
-            99,
-            100,
-        ];
-
-        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
-        let decoded_data = decoder.collect::<Vec<u32>>();
-
-        assert_eq!(decoded_data, actual_decoded_data);
-    }
-
-    #[test]
-    fn test_decode_ascii_sequences_reverse() {
-        let actual_decoded_data: Vec<u32> = vec![
-            100,
-            99,
-            98,
-            97,
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            97,
-            98,
-            99,
-            100,
-        ];
-
-        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
-        let decoded_data = decoder.rev().collect::<Vec<u32>>();
-
-        assert_eq!(decoded_data, actual_decoded_data);
-    }
-
-    #[test]
-    fn test_decode_multibyte_sequences() {
-        let actual_decoded_data: Vec<u32> = vec![
-            1514,
-            12701,
-            128512,
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            239, 170,
-            204, 140, 189,
-            195, 157, 144, 160,
-        ];
-
-        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
-        let decoded_data = decoder.collect::<Vec<u32>>();
-
-        assert_eq!(decoded_data, actual_decoded_data);
-    }
-
-    #[test]
-    fn test_decode_multibyte_sequences_reverse() {
-        let actual_decoded_data: Vec<u32> = vec![
-            128512,
-            12701,
-            1514,
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            239, 170,
-            204, 140, 189,
-            195, 157, 144, 160,
-        ];
-
-        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
-        let decoded_data = decoder.rev().collect::<Vec<u32>>();
-
-        assert_eq!(decoded_data, actual_decoded_data);
+            assert_eq!(decoder_data, decoded_reverse);
+        }
     }
 
     #[test]
     fn test_decode_size_hint() {
-        let actual_encoded_data: Vec<u8> = vec![
-            97,
-            239, 170,
-            98,
-            204, 140, 189,
-            99,
-            195, 157, 144, 160,
-            100,
-        ];
+        for (decoded, encoded) in super::super::tests::data() {
+            let decoder = DecodeUnchecked::new(encoded.clone().into_iter());
+            let decoder_size_hint = decoder.size_hint();
+            let decoder_size_hint_lower = decoder_size_hint.0;
+            let decoder_size_hint_upper = decoder_size_hint.1.unwrap();
 
-        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
-        let decoder_size_hint = decoder.size_hint();
-
-        assert_eq!(
-            decoder_size_hint,
-            (4, Some(13))
-        );
+            assert!(decoder_size_hint_lower <= decoded.len());
+            assert!(decoder_size_hint_upper >= decoded.len());
+        }
     }
 
     #[test]
     fn test_decode_count() {
-        let actual_encoded_data: Vec<u8> = vec![
-            97,
-            239, 170,
-            98,
-            204, 140, 189,
-            99,
-            195, 157, 144, 160,
-            100,
-        ];
+        for (decoded, encoded) in super::super::tests::data() {
+            let decoder = DecodeUnchecked::new(encoded.clone().into_iter());
+            let decoder_count = decoder.count();
 
-        let decoder = DecodeUnchecked::new(actual_encoded_data.into_iter());
-        let decoder_count = decoder.count();
-
-        assert_eq!(decoder_count, 7);
+            assert_eq!(decoder_count, decoded.len());
+        }
     }
 }

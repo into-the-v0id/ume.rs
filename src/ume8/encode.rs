@@ -111,117 +111,35 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_encode_ascii_sequence() {
-        let actual_decoded_data = 97;
-        let actual_encoded_data: Vec<u8> = vec![97];
+    fn test_encode_sequences() {
+        for (decoded, encoded) in super::super::tests::data() {
+            let encoder = EncodeUnchecked::new(decoded.clone().into_iter());
+            let encoder_data = encoder.collect::<Vec<u8>>();
 
-        let encoder = EncodeSequenceUnchecked::new(actual_decoded_data);
-        let encoded_data = encoder.collect::<Vec<u8>>();
-
-        assert_eq!(encoded_data, actual_encoded_data);
+            assert_eq!(encoder_data, encoded);
+        }
     }
 
     #[test]
-    fn test_encode_two_byte_sequence() {
-        let actual_decoded_data = 1514;
-        let actual_encoded_data: Vec<u8> = vec![239, 170];
+    fn test_encode_sequence() {
+        for (decoded, encoded) in super::super::tests::data() {
+            // only data-sets with one sequence
+            if decoded.len() != 1 {
+                continue;
+            }
 
-        let encoder = EncodeSequenceUnchecked::new(actual_decoded_data);
-        let encoded_data = encoder.collect::<Vec<u8>>();
+            let encoder = EncodeSequenceUnchecked::new(decoded[0]);
+            let encoder_data = encoder.collect::<Vec<u8>>();
 
-        assert_eq!(encoded_data, actual_encoded_data);
-    }
-
-    #[test]
-    fn test_encode_three_byte_sequence() {
-        let actual_decoded_data = 12701;
-        let actual_encoded_data: Vec<u8> = vec![204, 140, 189];
-
-        let encoder = EncodeSequenceUnchecked::new(actual_decoded_data);
-        let encoded_data = encoder.collect::<Vec<u8>>();
-
-        assert_eq!(encoded_data, actual_encoded_data);
-    }
-
-    #[test]
-    fn test_encode_four_byte_sequence() {
-        let actual_decoded_data = 128512;
-        let actual_encoded_data: Vec<u8> = vec![195, 157, 144, 160];
-
-        let encoder = EncodeSequenceUnchecked::new(actual_decoded_data);
-        let encoded_data = encoder.collect::<Vec<u8>>();
-
-        assert_eq!(encoded_data, actual_encoded_data);
+            assert_eq!(encoder_data, encoded);
+        }
     }
 
     #[test]
     #[should_panic]
     #[allow(unused_must_use)]
     fn test_encode_five_byte_sequence() {
-        let actual_decoded_data = 128512375;
-
-        let encoder = EncodeSequenceUnchecked::new(actual_decoded_data);
+        let encoder = EncodeSequenceUnchecked::new(128512375);
         encoder.collect::<Vec<u8>>();
-    }
-
-    #[test]
-    fn test_encode_mixed_sequences() {
-        let actual_decoded_data: Vec<u32> = vec![
-            97,
-            246,
-            117,
-            128512,
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            97,
-            199, 182,
-            117,
-            195, 157, 144, 160,
-        ];
-
-        let encoder = EncodeUnchecked::new(actual_decoded_data.into_iter());
-        let encoded_data = encoder.collect::<Vec<u8>>();
-
-        assert_eq!(encoded_data, actual_encoded_data);
-    }
-
-    #[test]
-    fn test_encode_ascii_sequences() {
-        let actual_decoded_data: Vec<u32> = vec![
-            97,
-            98,
-            99,
-            100,
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            97,
-            98,
-            99,
-            100,
-        ];
-
-        let encoder = EncodeUnchecked::new(actual_decoded_data.into_iter());
-        let encoded_data = encoder.collect::<Vec<u8>>();
-
-        assert_eq!(encoded_data, actual_encoded_data);
-    }
-
-    #[test]
-    fn test_encode_multibyte_sequences() {
-        let actual_decoded_data: Vec<u32> = vec![
-            1514,
-            12701,
-            128512,
-        ];
-        let actual_encoded_data: Vec<u8> = vec![
-            239, 170,
-            204, 140, 189,
-            195, 157, 144, 160,
-        ];
-
-        let encoder = EncodeUnchecked::new(actual_decoded_data.into_iter());
-        let encoded_data = encoder.collect::<Vec<u8>>();
-
-        assert_eq!(encoded_data, actual_encoded_data);
     }
 }
