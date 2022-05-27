@@ -1,15 +1,17 @@
-use crate::ume8::{MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_END, MASK_SEQ_START_DATA};
+use std::iter::FusedIterator;
+use crate::ume8::{MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_END, MASK_SEQ_START, MASK_SEQ_START_DATA};
+use crate::ume8::util;
 
 #[derive(Clone)]
 #[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct DecodeUnchecked<I>
-    where I: Iterator<Item=u8>
+    where I: DoubleEndedIterator<Item=u8>
 {
     pub iter: I,
 }
 
 impl <I> DecodeUnchecked<I>
-    where I: Iterator<Item=u8>
+    where I: DoubleEndedIterator<Item=u8>
 {
     #[inline]
     pub fn new(iter: I) -> Self {
@@ -20,7 +22,7 @@ impl <I> DecodeUnchecked<I>
 }
 
 impl <I> Iterator for DecodeUnchecked<I>
-    where I: Iterator<Item=u8>
+    where I: DoubleEndedIterator<Item=u8>
 {
     type Item = u32;
 
@@ -45,7 +47,55 @@ impl <I> Iterator for DecodeUnchecked<I>
 
         Some(data)
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let (lower, upper) = self.iter.size_hint();
+        ((lower + 3) / 4, upper)
+    }
+
+    fn count(self) -> usize {
+        util::count_sequences_unchecked(self.iter)
+    }
+
+    fn last(mut self) -> Option<Self::Item> {
+        self.next_back()
+    }
 }
+
+impl <I> DoubleEndedIterator for DecodeUnchecked<I>
+    where I: DoubleEndedIterator<Item=u8>,
+{
+    // TODO: check again
+    #[inline]
+    fn next_back(&mut self) -> Option<Self::Item> {
+        let last_byte = self.iter.next_back()?;
+        if last_byte & MASK_SEQ == 0 {
+            return Some(last_byte as u32);
+        }
+
+        let mut data = (last_byte & MASK_SEQ_CONT_DATA) as u32;
+        let mut bit_count: u8 = 5;
+
+        loop {
+            let prev_byte = self.iter.next_back().unwrap();
+
+            if prev_byte & MASK_SEQ_START != 0 {
+                data = data | ((prev_byte & MASK_SEQ_START_DATA) as u32) << bit_count;
+
+                break;
+            }
+
+            data = data | ((prev_byte & MASK_SEQ_CONT_DATA) as u32) << bit_count;
+            bit_count += 5;
+        }
+
+        Some(data)
+    }
+}
+
+impl <I> FusedIterator for DecodeUnchecked<I>
+    where I: DoubleEndedIterator<Item=u8> + FusedIterator<Item=u8>,
+{}
 
 #[derive(Clone)]
 pub struct ToCharUnchecked<Iter>
@@ -74,4 +124,38 @@ impl <Iter> Iterator for ToCharUnchecked<Iter>
         self.iter.next()
             .map(|data| unsafe { char::from_u32_unchecked(data) })
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+
+    fn count(self) -> usize where Self: Sized {
+        self.iter.count()
+    }
+
+    fn last(self) -> Option<Self::Item> where Self: Sized {
+        self.iter.last()
+            .map(|data| unsafe { char::from_u32_unchecked(data) })
+    }
 }
+
+impl<Iter> DoubleEndedIterator for ToCharUnchecked<Iter>
+    where Iter: DoubleEndedIterator<Item=u32>,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back()
+            .map(|data| unsafe { char::from_u32_unchecked(data) })
+    }
+}
+
+impl<Iter> ExactSizeIterator for ToCharUnchecked<Iter>
+    where Iter: ExactSizeIterator<Item=u32>,
+{
+    fn len(&self) -> usize {
+        self.iter.len()
+    }
+}
+
+impl <Iter> FusedIterator for ToCharUnchecked<Iter>
+    where Iter: FusedIterator<Item=u32>,
+{}
