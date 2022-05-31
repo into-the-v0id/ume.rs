@@ -1,13 +1,15 @@
 use std::fmt::{Debug, Display, Formatter};
+use std::ops::{Deref, DerefMut, Index, IndexMut, RangeFull};
 use std::str::FromStr;
 use std::string::String as StdString;
 use crate::EncodeUnchecked;
 use crate::ume8::decode::{DecodeUnchecked, ToCharUnchecked};
 use crate::ume8::encode::EncodeSequenceUnchecked;
+use crate::ume8::str::Str;
 use crate::ume8::util::is_singleton;
 
 #[repr(transparent)]
-#[derive(PartialOrd, PartialEq, Ord, Eq)]
+#[derive(PartialOrd, PartialEq, Ord, Eq, Hash)]
 pub struct String {
     bytes: Vec<u8>,
 }
@@ -22,6 +24,12 @@ impl String {
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
             bytes: Vec::with_capacity(capacity),
+        }
+    }
+
+    pub unsafe fn from_bytes_unchecked(bytes: Vec<u8>) -> Self {
+        Self {
+            bytes
         }
     }
 
@@ -86,6 +94,10 @@ impl String {
 
     pub fn as_bytes(&self) -> &[u8] {
         &self.bytes
+    }
+
+    pub fn as_bytes_mut(&mut self) -> &mut [u8] {
+        &mut self.bytes
     }
 
     pub fn chars(&self) -> ToCharUnchecked<DecodeUnchecked<std::vec::IntoIter<u8>>> {
@@ -154,6 +166,34 @@ impl String {
 impl String {
     pub fn push_string(&mut self, string: Self) {
         self.bytes.extend(string.bytes);
+    }
+}
+
+impl Deref for String {
+    type Target = Str;
+
+    fn deref(&self) -> &Self::Target {
+        &self[..]
+    }
+}
+
+impl DerefMut for String {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self[..]
+    }
+}
+
+impl Index<RangeFull> for String {
+    type Output = Str;
+
+    fn index(&self, _index: RangeFull) -> &Self::Output {
+        unsafe { Str::from_inner(&self.bytes) }
+    }
+}
+
+impl IndexMut<RangeFull> for String {
+    fn index_mut(&mut self, _index: RangeFull) -> &mut Self::Output {
+        unsafe { Str::from_inner_mut(&mut self.bytes) }
     }
 }
 
@@ -246,6 +286,12 @@ impl FromStr for String {
 impl From<&str> for String {
     fn from(s: &str) -> String {
         s.chars().collect::<String>()
+    }
+}
+
+impl From<&Str> for String {
+    fn from(s: &Str) -> String {
+        s.to_owned()
     }
 }
 

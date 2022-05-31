@@ -1,6 +1,7 @@
 pub mod encode;
 pub mod decode;
 pub mod string;
+pub mod str;
 pub mod util;
 
 const MASK_SEQ: u8 = 0b10000000;
