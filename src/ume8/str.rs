@@ -18,12 +18,12 @@ impl Str {
 
     #[allow(unused_unsafe)]
     pub(crate) unsafe fn from_inner(inner: &[u8]) -> &Self {
-        unsafe { &*(inner as *const [u8] as *const Str) }
+        unsafe { std::mem::transmute(inner) }
     }
 
     #[allow(unused_unsafe)]
     pub(crate) unsafe fn from_inner_mut(inner: &mut [u8]) -> &mut Self {
-        unsafe { &mut *(inner as *mut [u8] as *mut Str) }
+        unsafe { std::mem::transmute(inner) }
     }
 
     pub fn len(&self) -> usize {
