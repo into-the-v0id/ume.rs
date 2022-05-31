@@ -62,7 +62,7 @@ impl Iterator for EncodeSequenceUnchecked {
     type Item = u8;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.current += 1;
+        self.current += 1; // TODO: prevent integer overflow on excessive next() calls after None
 
         // 1 byte
         if self.data & 0b1111_1111_1111_1111_1111_1111_1000_0000 == 0 {
