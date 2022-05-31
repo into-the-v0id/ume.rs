@@ -10,14 +10,7 @@ fn main() {
 
 #[allow(dead_code)]
 fn string() {
-    let string: Ume8String = "hello world".into();
-    println!("{}", string);
-
-    let mut str = Ume8String::new();
-    str.push('a');
-    str.push('ö');
-    str.push('u');
-    str.push('😀');
+    let str = Ume8String::from("aöu😀");
     println!("{}", str);
 }
 
