@@ -185,20 +185,48 @@ impl FromStr for String {
     }
 }
 
-impl <'a, I: Into<&'a str>> From<I> for String {
-    fn from(s: I) -> String {
-        s.into().chars().collect::<String>()
+impl From<&str> for String {
+    fn from(s: &str) -> String {
+        s.chars().collect::<String>()
     }
 }
 
-impl From<&String> for StdString {
-    fn from(s: &String) -> StdString {
-        s.chars().collect::<StdString>()
+impl From<StdString> for String {
+    fn from(s: StdString) -> String {
+        s.chars().collect::<String>()
+    }
+}
+
+impl From<&StdString> for String {
+    fn from(s: &StdString) -> String {
+        s.chars().collect::<String>()
+    }
+}
+
+impl From<char> for String {
+    fn from(char: char) -> String {
+        let mut string = String::new();
+        string.push(char);
+        string
+    }
+}
+
+impl From<&char> for String {
+    fn from(char: &char) -> String {
+        let mut string = String::new();
+        string.push(*char);
+        string
     }
 }
 
 impl From<String> for StdString {
     fn from(s: String) -> StdString {
+        s.chars().collect::<StdString>()
+    }
+}
+
+impl From<&String> for StdString {
+    fn from(s: &String) -> StdString {
         s.chars().collect::<StdString>()
     }
 }
