@@ -5,6 +5,7 @@ use crate::EncodeUnchecked;
 use crate::ume8::decode::{DecodeUnchecked, ToCharUnchecked};
 use crate::ume8::encode::EncodeSequenceUnchecked;
 
+#[repr(transparent)]
 #[derive(PartialOrd, PartialEq, Ord, Eq)]
 pub struct String {
     bytes: Vec<u8>,
