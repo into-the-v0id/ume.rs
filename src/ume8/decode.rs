@@ -28,6 +28,7 @@ impl <I> Iterator for DecodeUnchecked<I>
 
     fn next(&mut self) -> Option<Self::Item> {
         let first_byte = self.iter.next()?;
+
         if first_byte & MASK_SEQ == 0 {
             return Some(first_byte as u32);
         }
@@ -67,6 +68,7 @@ impl <I> DoubleEndedIterator for DecodeUnchecked<I>
     // TODO: check again
     fn next_back(&mut self) -> Option<Self::Item> {
         let last_byte = self.iter.next_back()?;
+
         if last_byte & MASK_SEQ == 0 {
             return Some(last_byte as u32);
         }
