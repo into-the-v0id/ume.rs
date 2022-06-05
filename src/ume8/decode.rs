@@ -65,7 +65,6 @@ impl <I> Iterator for DecodeUnchecked<I>
 impl <I> DoubleEndedIterator for DecodeUnchecked<I>
     where I: DoubleEndedIterator<Item=u8>,
 {
-    // TODO: check again
     fn next_back(&mut self) -> Option<Self::Item> {
         let last_byte = self.iter.next_back()?;
 
