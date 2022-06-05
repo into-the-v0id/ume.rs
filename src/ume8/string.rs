@@ -2,8 +2,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Deref, DerefMut, Index, IndexMut, RangeFull};
 use std::str::FromStr;
 use std::string::String as StdString;
-use crate::EncodeUnchecked;
-use crate::ume8::encode::EncodeSequenceUnchecked;
+use crate::ume8::encode::{EncodeUnchecked, EncodeSequenceUnchecked};
 use crate::ume8::str::Str;
 
 #[repr(transparent)]

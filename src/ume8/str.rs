@@ -1,7 +1,6 @@
 use std::borrow::Borrow;
 use std::fmt::{Debug, Display, Formatter};
-use crate::DecodeUnchecked;
-use crate::ume8::decode::ToCharUnchecked;
+use crate::ume8::decode::{DecodeUnchecked, ToCharUnchecked};
 use crate::ume8::string::String as Ume8String;
 use crate::ume8::util::is_singleton;
 
