@@ -275,14 +275,6 @@ impl From<&char> for Ume8String {
     }
 }
 
-impl From<&Ume8Str> for String {
-    fn from(s: &Ume8Str) -> String {
-        let mut string = String::with_capacity(s.len());
-        string.extend(s.chars());
-        string
-    }
-}
-
 impl From<Ume8String> for String {
     fn from(s: Ume8String) -> String {
         s.as_str().into()

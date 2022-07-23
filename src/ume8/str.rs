@@ -136,3 +136,11 @@ impl AsRef<Ume8Str> for Ume8Str {
         self
     }
 }
+
+impl From<&Ume8Str> for String {
+    fn from(s: &Ume8Str) -> String {
+        let mut string = String::with_capacity(s.len());
+        string.extend(s.chars());
+        string
+    }
+}
