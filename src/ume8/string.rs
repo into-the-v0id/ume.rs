@@ -171,15 +171,13 @@ impl Default for Ume8String {
 
 impl Display for Ume8String {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let string: String = self.into();
-        Display::fmt(&string, f)
+        Display::fmt(self.as_ref(), f)
     }
 }
 
 impl Debug for Ume8String {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let string: String = self.into();
-        Debug::fmt(&string, f)
+        Debug::fmt(self.as_ref(), f)
     }
 }
 

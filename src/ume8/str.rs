@@ -111,14 +111,14 @@ impl Default for &Ume8Str {
 
 impl Display for Ume8Str {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let string: Ume8String = self.into();
+        let string: String = self.into();
         Display::fmt(&string, f)
     }
 }
 
 impl Debug for Ume8Str {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let string: Ume8String = self.into();
+        let string: String = self.into();
         Debug::fmt(&string, f)
     }
 }
