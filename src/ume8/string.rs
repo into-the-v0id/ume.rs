@@ -113,6 +113,30 @@ impl DerefMut for String {
     }
 }
 
+impl AsRef<Str> for String {
+    fn as_ref(&self) -> &Str {
+        self
+    }
+}
+
+impl AsMut<Str> for String {
+    fn as_mut(&mut self) -> &mut Str {
+        self
+    }
+}
+
+impl Borrow<Str> for String {
+    fn borrow(&self) -> &Str {
+        self.deref()
+    }
+}
+
+impl BorrowMut<Str> for String {
+    fn borrow_mut(&mut self) -> &mut Str {
+        self.deref_mut()
+    }
+}
+
 impl Index<RangeFull> for String {
     type Output = Str;
 

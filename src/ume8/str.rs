@@ -1,4 +1,3 @@
-use std::borrow::Borrow;
 use std::fmt::{Debug, Display, Formatter};
 use crate::ume8::decode::{DecodeUnchecked, ToCharUnchecked};
 use crate::ume8::string::String as Ume8String;
@@ -124,12 +123,6 @@ impl Debug for Str {
     }
 }
 
-impl Borrow<Str> for Ume8String {
-    fn borrow(&self) -> &Str {
-        &self[..]
-    }
-}
-
 impl ToOwned for Str {
     type Owned = Ume8String;
 
@@ -139,12 +132,6 @@ impl ToOwned for Str {
 }
 
 impl AsRef<Str> for Str {
-    fn as_ref(&self) -> &Str {
-        self
-    }
-}
-
-impl AsRef<Str> for Ume8String {
     fn as_ref(&self) -> &Str {
         self
     }
