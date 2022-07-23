@@ -1,3 +1,4 @@
+use std::borrow::{Borrow, BorrowMut};
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Deref, DerefMut, Index, IndexMut, RangeFull};
 use std::str::FromStr;
@@ -77,6 +78,18 @@ impl String {
 
     pub fn clear(&mut self) {
         self.bytes.clear();
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn as_str(&self) -> &Str {
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn as_mut_str(&mut self) -> &mut Str {
+        self
     }
 }
 
@@ -192,6 +205,12 @@ impl <I> FromIterator<I> for String
     }
 }
 
+impl From<&Str> for String {
+    fn from(s: &Str) -> String {
+        s.to_owned()
+    }
+}
+
 impl FromStr for String {
     type Err = core::convert::Infallible;
 
@@ -202,25 +221,21 @@ impl FromStr for String {
 
 impl From<&str> for String {
     fn from(s: &str) -> String {
-        s.chars().collect::<String>()
-    }
-}
-
-impl From<&Str> for String {
-    fn from(s: &Str) -> String {
-        s.to_owned()
+        let mut string = String::with_capacity(s.len());
+        string.extend(s.chars());
+        string
     }
 }
 
 impl From<StdString> for String {
     fn from(s: StdString) -> String {
-        s.chars().collect::<String>()
+        s.as_str().into()
     }
 }
 
 impl From<&StdString> for String {
     fn from(s: &StdString) -> String {
-        s.chars().collect::<String>()
+        s.as_str().into()
     }
 }
 
@@ -234,20 +249,26 @@ impl From<char> for String {
 
 impl From<&char> for String {
     fn from(char: &char) -> String {
-        let mut string = String::new();
-        string.push(*char);
+        (*char).into()
+    }
+}
+
+impl From<&Str> for StdString {
+    fn from(s: &Str) -> StdString {
+        let mut string = StdString::with_capacity(s.len());
+        string.extend(s.chars());
         string
     }
 }
 
 impl From<String> for StdString {
     fn from(s: String) -> StdString {
-        s.chars().collect::<StdString>()
+        s.as_str().into()
     }
 }
 
 impl From<&String> for StdString {
     fn from(s: &String) -> StdString {
-        s.chars().collect::<StdString>()
+        s.as_str().into()
     }
 }
