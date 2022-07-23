@@ -2,17 +2,17 @@ use std::borrow::{Borrow, BorrowMut};
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Deref, DerefMut, Index, IndexMut, RangeFull};
 use std::str::FromStr;
-use std::string::String as StdString;
+use std::string::String;
 use crate::ume8::encode::{EncodeUnchecked, EncodeSequenceUnchecked};
-use crate::ume8::str::Str;
+use crate::ume8::str::Ume8Str;
 
 #[repr(transparent)]
 #[derive(PartialOrd, PartialEq, Ord, Eq, Hash)]
-pub struct String {
+pub struct Ume8String {
     bytes: Vec<u8>,
 }
 
-impl String {
+impl Ume8String {
     pub fn new() -> Self {
         Self {
             bytes: Vec::new(),
@@ -82,76 +82,76 @@ impl String {
 
     #[inline]
     #[must_use]
-    pub fn as_str(&self) -> &Str {
+    pub fn as_str(&self) -> &Ume8Str {
         self
     }
 
     #[inline]
     #[must_use]
-    pub fn as_mut_str(&mut self) -> &mut Str {
+    pub fn as_mut_str(&mut self) -> &mut Ume8Str {
         self
     }
 }
 
-impl String {
+impl Ume8String {
     pub fn push_string(&mut self, string: Self) {
         self.bytes.extend(string.bytes);
     }
 }
 
-impl Deref for String {
-    type Target = Str;
+impl Deref for Ume8String {
+    type Target = Ume8Str;
 
     fn deref(&self) -> &Self::Target {
         &self[..]
     }
 }
 
-impl DerefMut for String {
+impl DerefMut for Ume8String {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self[..]
     }
 }
 
-impl AsRef<Str> for String {
-    fn as_ref(&self) -> &Str {
+impl AsRef<Ume8Str> for Ume8String {
+    fn as_ref(&self) -> &Ume8Str {
         self
     }
 }
 
-impl AsMut<Str> for String {
-    fn as_mut(&mut self) -> &mut Str {
+impl AsMut<Ume8Str> for Ume8String {
+    fn as_mut(&mut self) -> &mut Ume8Str {
         self
     }
 }
 
-impl Borrow<Str> for String {
-    fn borrow(&self) -> &Str {
+impl Borrow<Ume8Str> for Ume8String {
+    fn borrow(&self) -> &Ume8Str {
         self.deref()
     }
 }
 
-impl BorrowMut<Str> for String {
-    fn borrow_mut(&mut self) -> &mut Str {
+impl BorrowMut<Ume8Str> for Ume8String {
+    fn borrow_mut(&mut self) -> &mut Ume8Str {
         self.deref_mut()
     }
 }
 
-impl Index<RangeFull> for String {
-    type Output = Str;
+impl Index<RangeFull> for Ume8String {
+    type Output = Ume8Str;
 
     fn index(&self, _index: RangeFull) -> &Self::Output {
-        unsafe { Str::from_inner(&self.bytes) }
+        unsafe { Ume8Str::from_inner(&self.bytes) }
     }
 }
 
-impl IndexMut<RangeFull> for String {
+impl IndexMut<RangeFull> for Ume8String {
     fn index_mut(&mut self, _index: RangeFull) -> &mut Self::Output {
-        unsafe { Str::from_inner_mut(&mut self.bytes) }
+        unsafe { Ume8Str::from_inner_mut(&mut self.bytes) }
     }
 }
 
-impl Clone for String {
+impl Clone for Ume8String {
     fn clone(&self) -> Self {
         Self {
             bytes: self.bytes.clone()
@@ -163,41 +163,41 @@ impl Clone for String {
     }
 }
 
-impl Default for String {
+impl Default for Ume8String {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Display for String {
+impl Display for Ume8String {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let string: StdString = self.into();
+        let string: String = self.into();
         Display::fmt(&string, f)
     }
 }
 
-impl Debug for String {
+impl Debug for Ume8String {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let string: StdString = self.into();
+        let string: String = self.into();
         Debug::fmt(&string, f)
     }
 }
 
-impl Extend<String> for String {
-    fn extend<T: IntoIterator<Item=String>>(&mut self, iter: T) {
+impl Extend<Ume8String> for Ume8String {
+    fn extend<T: IntoIterator<Item=Ume8String>>(&mut self, iter: T) {
         iter.into_iter()
             .for_each(|string| self.bytes.extend(string.bytes));
     }
 }
 
-impl <'a> Extend<&'a String> for String {
-    fn extend<T: IntoIterator<Item=&'a String>>(&mut self, iter: T) {
+impl <'a> Extend<&'a Ume8String> for Ume8String {
+    fn extend<T: IntoIterator<Item=&'a Ume8String>>(&mut self, iter: T) {
         iter.into_iter()
             .for_each(|string| self.bytes.extend_from_slice(&string.bytes));
     }
 }
 
-impl Extend<char> for String {
+impl Extend<char> for Ume8String {
     fn extend<T: IntoIterator<Item=char>>(&mut self, iter: T) {
         self.bytes.extend(
             EncodeUnchecked::new(
@@ -208,7 +208,7 @@ impl Extend<char> for String {
     }
 }
 
-impl <'a> Extend<&'a char> for String {
+impl <'a> Extend<&'a char> for Ume8String {
     fn extend<T: IntoIterator<Item=&'a char>>(&mut self, iter: T) {
         self.bytes.extend(
             EncodeUnchecked::new(
@@ -219,80 +219,80 @@ impl <'a> Extend<&'a char> for String {
     }
 }
 
-impl <I> FromIterator<I> for String
-    where String: Extend<I>
+impl <I> FromIterator<I> for Ume8String
+    where Ume8String: Extend<I>
 {
     fn from_iter<T: IntoIterator<Item=I>>(iter: T) -> Self {
-        let mut string = String::new();
+        let mut string = Ume8String::new();
         string.extend(iter);
         string
     }
 }
 
-impl From<&Str> for String {
-    fn from(s: &Str) -> String {
+impl From<&Ume8Str> for Ume8String {
+    fn from(s: &Ume8Str) -> Ume8String {
         s.to_owned()
     }
 }
 
-impl FromStr for String {
+impl FromStr for Ume8String {
     type Err = core::convert::Infallible;
 
-    fn from_str(s: &str) -> Result<String, Self::Err> {
+    fn from_str(s: &str) -> Result<Ume8String, Self::Err> {
         Ok(s.into())
     }
 }
 
-impl From<&str> for String {
-    fn from(s: &str) -> String {
+impl From<&str> for Ume8String {
+    fn from(s: &str) -> Ume8String {
+        let mut string = Ume8String::with_capacity(s.len());
+        string.extend(s.chars());
+        string
+    }
+}
+
+impl From<String> for Ume8String {
+    fn from(s: String) -> Ume8String {
+        s.as_str().into()
+    }
+}
+
+impl From<&String> for Ume8String {
+    fn from(s: &String) -> Ume8String {
+        s.as_str().into()
+    }
+}
+
+impl From<char> for Ume8String {
+    fn from(char: char) -> Ume8String {
+        let mut string = Ume8String::new();
+        string.push(char);
+        string
+    }
+}
+
+impl From<&char> for Ume8String {
+    fn from(char: &char) -> Ume8String {
+        (*char).into()
+    }
+}
+
+impl From<&Ume8Str> for String {
+    fn from(s: &Ume8Str) -> String {
         let mut string = String::with_capacity(s.len());
         string.extend(s.chars());
         string
     }
 }
 
-impl From<StdString> for String {
-    fn from(s: StdString) -> String {
+impl From<Ume8String> for String {
+    fn from(s: Ume8String) -> String {
         s.as_str().into()
     }
 }
 
-impl From<&StdString> for String {
-    fn from(s: &StdString) -> String {
-        s.as_str().into()
-    }
-}
-
-impl From<char> for String {
-    fn from(char: char) -> String {
-        let mut string = String::new();
-        string.push(char);
-        string
-    }
-}
-
-impl From<&char> for String {
-    fn from(char: &char) -> String {
-        (*char).into()
-    }
-}
-
-impl From<&Str> for StdString {
-    fn from(s: &Str) -> StdString {
-        let mut string = StdString::with_capacity(s.len());
-        string.extend(s.chars());
-        string
-    }
-}
-
-impl From<String> for StdString {
-    fn from(s: String) -> StdString {
-        s.as_str().into()
-    }
-}
-
-impl From<&String> for StdString {
-    fn from(s: &String) -> StdString {
+impl From<&Ume8String> for String {
+    fn from(s: &Ume8String) -> String {
         s.as_str().into()
     }
 }

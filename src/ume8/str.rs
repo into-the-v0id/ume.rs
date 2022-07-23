@@ -1,15 +1,15 @@
 use std::fmt::{Debug, Display, Formatter};
 use crate::ume8::decode::{DecodeUnchecked, ToCharUnchecked};
-use crate::ume8::string::String as Ume8String;
+use crate::ume8::string::Ume8String;
 use crate::ume8::util::is_singleton;
 
 #[repr(transparent)]
 #[derive(PartialOrd, PartialEq, Ord, Eq, Hash)]
-pub struct Str {
+pub struct Ume8Str {
     bytes: [u8],
 }
 
-impl Str {
+impl Ume8Str {
     pub fn new<S: AsRef<Self> + ?Sized>(s: &S) -> &Self {
         s.as_ref()
     }
@@ -103,27 +103,27 @@ impl Str {
     }
 }
 
-impl Default for &Str {
+impl Default for &Ume8Str {
     fn default() -> Self {
-        unsafe { Str::from_inner(&[]) }
+        unsafe { Ume8Str::from_inner(&[]) }
     }
 }
 
-impl Display for Str {
+impl Display for Ume8Str {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let string: Ume8String = self.into();
         Display::fmt(&string, f)
     }
 }
 
-impl Debug for Str {
+impl Debug for Ume8Str {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let string: Ume8String = self.into();
         Debug::fmt(&string, f)
     }
 }
 
-impl ToOwned for Str {
+impl ToOwned for Ume8Str {
     type Owned = Ume8String;
 
     fn to_owned(&self) -> Self::Owned {
@@ -131,8 +131,8 @@ impl ToOwned for Str {
     }
 }
 
-impl AsRef<Str> for Str {
-    fn as_ref(&self) -> &Str {
+impl AsRef<Ume8Str> for Ume8Str {
+    fn as_ref(&self) -> &Ume8Str {
         self
     }
 }

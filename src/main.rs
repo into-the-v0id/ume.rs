@@ -1,7 +1,7 @@
 use crate::ume8::decode::DecodeUnchecked;
 use crate::ume8::encode::EncodeUnchecked;
-use crate::ume8::str::Str;
-use crate::ume8::string::String as Ume8String;
+use crate::ume8::str::Ume8Str;
+use crate::ume8::string::Ume8String;
 
 mod ume8;
 
@@ -14,7 +14,7 @@ fn string() {
     let str = Ume8String::from("aöu😀");
     println!("{}", str);
 
-    let str: &Str = &str;
+    let str: &Ume8Str = &str;
     println!("{}", str);
 }
 
