@@ -137,6 +137,12 @@ impl AsRef<Ume8Str> for Ume8Str {
     }
 }
 
+impl AsRef<[u8]> for Ume8Str {
+    fn as_ref(&self) -> &[u8] {
+        self.as_bytes()
+    }
+}
+
 impl From<&Ume8Str> for String {
     fn from(s: &Ume8Str) -> String {
         let mut string = String::with_capacity(s.len());

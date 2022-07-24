@@ -125,6 +125,12 @@ impl AsMut<Ume8Str> for Ume8String {
     }
 }
 
+impl AsRef<[u8]> for Ume8String {
+    fn as_ref(&self) -> &[u8] {
+        self.as_bytes()
+    }
+}
+
 impl Borrow<Ume8Str> for Ume8String {
     fn borrow(&self) -> &Ume8Str {
         self.deref()
@@ -171,13 +177,15 @@ impl Default for Ume8String {
 
 impl Display for Ume8String {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        Display::fmt(self.as_ref(), f)
+        let str: &Ume8Str = self.as_ref();
+        Display::fmt(str, f)
     }
 }
 
 impl Debug for Ume8String {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        Debug::fmt(self.as_ref(), f)
+        let str: &Ume8Str = self.as_ref();
+        Debug::fmt(str, f)
     }
 }
 
