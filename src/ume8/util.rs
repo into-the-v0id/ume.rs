@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::ume8::{MASK_SEQ, MASK_SEQ_START};
 
 pub fn count_sequences_unchecked<I: Iterator<Item=u8>>(iter: I) -> usize {
