@@ -1,4 +1,5 @@
 use std::fmt::{Debug, Display, Formatter};
+use std::iter::Cloned;
 use crate::ume8::decode::{DecodeUnchecked, ToCharUnchecked};
 use crate::ume8::string::Ume8String;
 use crate::ume8::util::is_singleton;
@@ -40,11 +41,11 @@ impl Ume8Str {
         &mut self.bytes
     }
 
-    pub fn chars(&self) -> ToCharUnchecked<DecodeUnchecked<std::vec::IntoIter<u8>>> {
+    pub fn chars(&self) -> ToCharUnchecked<DecodeUnchecked<Cloned<std::slice::Iter<u8>>>> {
         unsafe {
             ToCharUnchecked::new(
                 DecodeUnchecked::new(
-                    self.bytes.to_owned().into_iter()
+                    self.bytes.iter().cloned()
                 )
             )
         }
@@ -56,7 +57,7 @@ impl Ume8Str {
     // }
 
     pub fn contains(&self, other: &Self) -> bool {
-        if other.bytes.len() == 0 {
+        if other.bytes.is_empty() {
             return true;
         }
 
@@ -99,7 +100,7 @@ impl Ume8Str {
 
     pub fn is_ascii(&self) -> bool {
         self.bytes.iter()
-            .all(|byte| is_singleton(byte))
+            .all(is_singleton)
     }
 }
 
