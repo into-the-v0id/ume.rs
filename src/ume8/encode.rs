@@ -6,7 +6,8 @@ pub struct EncodeUnchecked<I>
     where I: Iterator<Item=u32>
 {
     pub iter: I,
-    current_sequence: Option<EncodeSequenceUnchecked>,
+    buffer: [u8; 4],
+    next_index: u8,
 }
 
 impl <I> EncodeUnchecked<I>
@@ -16,8 +17,65 @@ impl <I> EncodeUnchecked<I>
     pub fn new(iter: I) -> Self {
         Self {
             iter,
-            current_sequence: None,
+            buffer: [0, 0, 0, 0],
+            next_index: 4,
         }
+    }
+
+    fn set_data(&mut self, data: u32) {
+        // 1 byte
+        if data & 0b1111_1111_1111_1111_1111_1111_1000_0000 == 0 {
+            self.buffer = [
+                0,
+                0,
+                0,
+                data as u8,
+            ];
+            self.next_index = 3;
+
+            return;
+        }
+
+        // 2 bytes
+        if data & 0b1111_1111_1111_1111_1111_1000_0000_0000 == 0 {
+            self.buffer = [
+                0,
+                0,
+                (((data >> 5) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START,
+                ((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END,
+            ];
+            self.next_index = 2;
+
+            return;
+        }
+
+        // 3 bytes
+        if data & 0b1111_1111_1111_1111_0000_0000_0000_0000 == 0 {
+            self.buffer = [
+                0,
+                (((data >> (5+5)) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START,
+                (((data >> 5) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ,
+                ((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END,
+            ];
+            self.next_index = 1;
+
+            return;
+        }
+
+        // 4 bytes
+        if data & 0b1111_1111_1110_0000_0000_0000_0000_0000 == 0 {
+            self.buffer = [
+                (((data >> (5 + 5 + 5)) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START,
+                (((data >> (5 + 5)) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ,
+                (((data >> 5) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ,
+                ((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END,
+            ];
+            self.next_index = 0;
+
+            return;
+        }
+
+        panic!("trying to encode more than 21 bits of data");
     }
 }
 
@@ -27,82 +85,22 @@ impl <I> Iterator for EncodeUnchecked<I>
     type Item = u8;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current_sequence.is_none() {
-            self.current_sequence = Some(EncodeSequenceUnchecked::new(self.iter.next()?));
+        // end of current sequence
+        if self.next_index >= 4 {
+            let next_data = self.iter.next()?;
+
+            // 1 byte
+            if next_data & 0b1111_1111_1111_1111_1111_1111_1000_0000 == 0 {
+                return Some(next_data as u8);
+            }
+
+            self.set_data(next_data);
         }
 
-        self.current_sequence
-            .as_mut()
-            .unwrap()
-            .next()
-            .or_else(|| {
-                self.current_sequence = None;
-                self.next()
-            })
-    }
-}
+        let next_byte = self.buffer[self.next_index as usize];
+        self.next_index += 1;
 
-#[derive(Clone)]
-pub struct EncodeSequenceUnchecked {
-    data: u32,
-    current: u8,
-}
-
-impl EncodeSequenceUnchecked {
-    #[inline]
-    pub fn new(data: u32) -> Self {
-        Self {
-            data,
-            current: 0,
-        }
-    }
-}
-
-impl Iterator for EncodeSequenceUnchecked {
-    type Item = u8;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.current += 1; // TODO: prevent integer overflow on excessive next() calls after None
-
-        // 1 byte
-        if self.data & 0b1111_1111_1111_1111_1111_1111_1000_0000 == 0 {
-            return match self.current - 1 {
-                0 => Some(self.data as u8),
-                _ => None,
-            };
-        }
-
-        // 2 bytes
-        if self.data & 0b1111_1111_1111_1111_1111_1000_0000_0000 == 0 {
-            return match self.current - 1 {
-                0 => Some((((self.data >> 5) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START),
-                1 => Some(((self.data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END),
-                _ => None,
-            };
-        }
-
-        // 3 bytes
-        if self.data & 0b1111_1111_1111_1111_0000_0000_0000_0000 == 0 {
-            return match self.current - 1 {
-                0 => Some((((self.data >> (5+5)) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START),
-                1 => Some((((self.data >> 5) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ),
-                2 => Some(((self.data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END),
-                _ => None,
-            };
-        }
-
-        // 4 bytes
-        if self.data & 0b1111_1111_1110_0000_0000_0000_0000_0000 == 0 {
-            return match self.current - 1 {
-                0 => Some((((self.data >> (5+5+5)) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START),
-                1 => Some((((self.data >> (5+5)) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ),
-                2 => Some((((self.data >> 5) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ),
-                3 => Some(((self.data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END),
-                _ => None,
-            };
-        }
-
-        panic!("trying to encode more than 21 bits of data");
+        Some(next_byte)
     }
 }
 
@@ -121,25 +119,11 @@ mod tests {
     }
 
     #[test]
-    fn test_encode_sequence() {
-        for (decoded, encoded) in super::super::tests::data() {
-            // only data-sets with one sequence
-            if decoded.len() != 1 {
-                continue;
-            }
-
-            let encoder = EncodeSequenceUnchecked::new(decoded[0]);
-            let encoder_data = encoder.collect::<Vec<u8>>();
-
-            assert_eq!(encoder_data, encoded);
-        }
-    }
-
-    #[test]
     #[should_panic]
     #[allow(unused_must_use)]
     fn test_encode_five_byte_sequence() {
-        let encoder = EncodeSequenceUnchecked::new(128512375);
+        let data: [u32; 1] = [128512375];
+        let encoder = EncodeUnchecked::new(data.clone().into_iter());
         encoder.collect::<Vec<u8>>();
     }
 }

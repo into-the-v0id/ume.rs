@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Deref, DerefMut, Index, IndexMut, RangeFull};
 use std::str::FromStr;
 use std::string::String;
-use crate::ume8::encode::{EncodeUnchecked, EncodeSequenceUnchecked};
+use crate::ume8::encode::EncodeUnchecked;
 use crate::ume8::str::Ume8Str;
 
 #[repr(transparent)]
@@ -57,7 +57,7 @@ impl Ume8String {
 
     pub fn push(&mut self, ch: char) {
         self.bytes.extend(
-            EncodeSequenceUnchecked::new(ch as u32)
+            EncodeUnchecked::new([ch as u32].into_iter())
         );
     }
 
