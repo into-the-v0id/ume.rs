@@ -61,6 +61,10 @@ impl Ume8String {
         );
     }
 
+    pub fn push_string(&mut self, string: Self) {
+        self.bytes.extend(string.bytes);
+    }
+
     // TODO
     // pub fn truncate(&mut self, length: usize) {
     //
@@ -90,12 +94,6 @@ impl Ume8String {
     #[must_use]
     pub fn as_mut_str(&mut self) -> &mut Ume8Str {
         self
-    }
-}
-
-impl Ume8String {
-    pub fn push_string(&mut self, string: Self) {
-        self.bytes.extend(string.bytes);
     }
 }
 
@@ -177,15 +175,13 @@ impl Default for Ume8String {
 
 impl Display for Ume8String {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let str: &Ume8Str = self.as_ref();
-        Display::fmt(str, f)
+        Display::fmt(self.as_str(), f)
     }
 }
 
 impl Debug for Ume8String {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let str: &Ume8Str = self.as_ref();
-        Debug::fmt(str, f)
+        Debug::fmt(self.as_str(), f)
     }
 }
 
