@@ -14,7 +14,7 @@ Binary representation of sequences with 1-4 bytes (data displayed as "x"):
 | 11xxxxxx | 100xxxxx | 101xxxxx |          |
 | 11xxxxxx | 100xxxxx | 100xxxxx | 101xxxxx |
 
-Byte order of data: Big-Endian
+Byte order of data: Big-Endian  
 Bit order of data: most significant bit first (MSB 0)
 
 Example:
