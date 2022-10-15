@@ -1,4 +1,4 @@
-// Copyright Oliver Amann
+// Copyright (C) Oliver Amann
 //
 // Licensed under the MIT License or the Apache License Version 2.0,
 // at your option. You may not use this file except according to
