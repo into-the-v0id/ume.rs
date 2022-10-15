@@ -77,4 +77,6 @@ In theory, a single sequence can contain an unlimited amount of bytes. For perfo
 
 ## License
 
+Copyright (C) Oliver Amann
+
 This project is licensed under the MIT License (MIT) or the Apache License Version 2.0 (Apache-2.0). Please see [LICENSE-MIT](./LICENSE-MIT) and [LICENSE-APACHE](./LICENSE-APACHE) for more information.
