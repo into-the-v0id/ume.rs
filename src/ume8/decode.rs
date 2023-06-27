@@ -1,28 +1,31 @@
-use std::iter::FusedIterator;
-use crate::ume8::{MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_END, MASK_SEQ_START, MASK_SEQ_START_DATA};
 use crate::ume8::util;
+use crate::ume8::{
+    MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_END, MASK_SEQ_START, MASK_SEQ_START_DATA,
+};
+use std::iter::FusedIterator;
 
 #[derive(Clone)]
 #[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct DecodeUnchecked<I>
-    where I: DoubleEndedIterator<Item=u8>
+where
+    I: DoubleEndedIterator<Item = u8>,
 {
     pub iter: I,
 }
 
-impl <I> DecodeUnchecked<I>
-    where I: DoubleEndedIterator<Item=u8>
+impl<I> DecodeUnchecked<I>
+where
+    I: DoubleEndedIterator<Item = u8>,
 {
     #[inline]
     pub fn new(iter: I) -> Self {
-        Self {
-            iter
-        }
+        Self { iter }
     }
 }
 
-impl <I> Iterator for DecodeUnchecked<I>
-    where I: DoubleEndedIterator<Item=u8>
+impl<I> Iterator for DecodeUnchecked<I>
+where
+    I: DoubleEndedIterator<Item = u8>,
 {
     type Item = u32;
 
@@ -62,8 +65,9 @@ impl <I> Iterator for DecodeUnchecked<I>
     }
 }
 
-impl <I> DoubleEndedIterator for DecodeUnchecked<I>
-    where I: DoubleEndedIterator<Item=u8>,
+impl<I> DoubleEndedIterator for DecodeUnchecked<I>
+where
+    I: DoubleEndedIterator<Item = u8>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
         let last_byte = self.iter.next_back()?;
@@ -92,35 +96,38 @@ impl <I> DoubleEndedIterator for DecodeUnchecked<I>
     }
 }
 
-impl <I> FusedIterator for DecodeUnchecked<I>
-    where I: DoubleEndedIterator<Item=u8> + FusedIterator<Item=u8>,
-{}
+impl<I> FusedIterator for DecodeUnchecked<I> where
+    I: DoubleEndedIterator<Item = u8> + FusedIterator<Item = u8>
+{
+}
 
 #[derive(Clone)]
 pub struct ToCharUnchecked<Iter>
-    where Iter: Iterator<Item=u32>,
+where
+    Iter: Iterator<Item = u32>,
 {
     iter: Iter,
 }
 
-impl <Iter> ToCharUnchecked<Iter>
-    where Iter: Iterator<Item=u32>,
+impl<Iter> ToCharUnchecked<Iter>
+where
+    Iter: Iterator<Item = u32>,
 {
     #[inline]
     pub unsafe fn new(iter: Iter) -> Self {
-        Self {
-            iter
-        }
+        Self { iter }
     }
 }
 
-impl <Iter> Iterator for ToCharUnchecked<Iter>
-    where Iter: Iterator<Item=u32>,
+impl<Iter> Iterator for ToCharUnchecked<Iter>
+where
+    Iter: Iterator<Item = u32>,
 {
     type Item = char;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next()
+        self.iter
+            .next()
             .map(|data| unsafe { char::from_u32_unchecked(data) })
     }
 
@@ -128,36 +135,44 @@ impl <Iter> Iterator for ToCharUnchecked<Iter>
         self.iter.size_hint()
     }
 
-    fn count(self) -> usize where Self: Sized {
+    fn count(self) -> usize
+    where
+        Self: Sized,
+    {
         self.iter.count()
     }
 
-    fn last(self) -> Option<Self::Item> where Self: Sized {
-        self.iter.last()
+    fn last(self) -> Option<Self::Item>
+    where
+        Self: Sized,
+    {
+        self.iter
+            .last()
             .map(|data| unsafe { char::from_u32_unchecked(data) })
     }
 }
 
 impl<Iter> DoubleEndedIterator for ToCharUnchecked<Iter>
-    where Iter: DoubleEndedIterator<Item=u32>,
+where
+    Iter: DoubleEndedIterator<Item = u32>,
 {
     fn next_back(&mut self) -> Option<Self::Item> {
-        self.iter.next_back()
+        self.iter
+            .next_back()
             .map(|data| unsafe { char::from_u32_unchecked(data) })
     }
 }
 
 impl<Iter> ExactSizeIterator for ToCharUnchecked<Iter>
-    where Iter: ExactSizeIterator<Item=u32>,
+where
+    Iter: ExactSizeIterator<Item = u32>,
 {
     fn len(&self) -> usize {
         self.iter.len()
     }
 }
 
-impl <Iter> FusedIterator for ToCharUnchecked<Iter>
-    where Iter: FusedIterator<Item=u32>,
-{}
+impl<Iter> FusedIterator for ToCharUnchecked<Iter> where Iter: FusedIterator<Item = u32> {}
 
 #[cfg(test)]
 mod tests {
@@ -166,17 +181,14 @@ mod tests {
     #[test]
     fn test_decode_sequences_to_char() {
         for (decoded, encoded) in super::super::tests::data() {
-            let decoded_chars = decoded.clone().into_iter()
+            let decoded_chars = decoded
+                .clone()
+                .into_iter()
                 .map(|data| char::from_u32(data).unwrap())
                 .collect::<Vec<char>>();
 
-            let decoder = unsafe {
-                ToCharUnchecked::new(
-                    DecodeUnchecked::new(
-                        encoded.clone().into_iter()
-                    )
-                )
-            };
+            let decoder =
+                unsafe { ToCharUnchecked::new(DecodeUnchecked::new(encoded.clone().into_iter())) };
             let decoder_data = decoder.collect::<Vec<char>>();
 
             assert_eq!(decoder_data, decoded_chars);
@@ -186,18 +198,14 @@ mod tests {
     #[test]
     fn test_decode_sequences_to_char_reverse() {
         for (decoded, encoded) in super::super::tests::data() {
-            let decoded_chars_reversed = decoded.iter()
+            let decoded_chars_reversed = decoded
+                .iter()
                 .map(|&data| char::from_u32(data).unwrap())
                 .rev()
                 .collect::<Vec<char>>();
 
-            let decoder = unsafe {
-                ToCharUnchecked::new(
-                    DecodeUnchecked::new(
-                        encoded.clone().into_iter()
-                    )
-                )
-            };
+            let decoder =
+                unsafe { ToCharUnchecked::new(DecodeUnchecked::new(encoded.clone().into_iter())) };
             let decoder_data = decoder.rev().collect::<Vec<char>>();
 
             assert_eq!(decoder_data, decoded_chars_reversed);
@@ -217,10 +225,7 @@ mod tests {
     #[test]
     fn test_decode_sequences_reverse() {
         for (decoded, encoded) in super::super::tests::data() {
-            let decoded_reverse = decoded.iter()
-                .map(|&data| data)
-                .rev()
-                .collect::<Vec<u32>>();
+            let decoded_reverse = decoded.iter().map(|&data| data).rev().collect::<Vec<u32>>();
 
             let decoder = DecodeUnchecked::new(encoded.clone().into_iter());
             let decoder_data = decoder.rev().collect::<Vec<u32>>();

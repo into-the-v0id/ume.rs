@@ -1,17 +1,21 @@
-use crate::ume8::{MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_END, MASK_SEQ_START, MASK_SEQ_START_DATA};
+use crate::ume8::{
+    MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_END, MASK_SEQ_START, MASK_SEQ_START_DATA,
+};
 
 #[derive(Clone)]
 #[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct EncodeUnchecked<I>
-    where I: Iterator<Item=u32>
+where
+    I: Iterator<Item = u32>,
 {
     pub iter: I,
     buffer: [u8; 4],
     next_index: u8,
 }
 
-impl <I> EncodeUnchecked<I>
-    where I: Iterator<Item=u32>
+impl<I> EncodeUnchecked<I>
+where
+    I: Iterator<Item = u32>,
 {
     #[inline]
     pub fn new(iter: I) -> Self {
@@ -25,12 +29,7 @@ impl <I> EncodeUnchecked<I>
     fn set_data(&mut self, data: u32) {
         // 1 byte
         if data & 0b1111_1111_1111_1111_1111_1111_1000_0000 == 0 {
-            self.buffer = [
-                0,
-                0,
-                0,
-                data as u8,
-            ];
+            self.buffer = [0, 0, 0, data as u8];
             self.next_index = 3;
 
             return;
@@ -53,7 +52,7 @@ impl <I> EncodeUnchecked<I>
         if data & 0b1111_1111_1111_1111_0000_0000_0000_0000 == 0 {
             self.buffer = [
                 0,
-                (((data >> (5+5)) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START,
+                (((data >> (5 + 5)) as u8) & MASK_SEQ_START_DATA) | MASK_SEQ | MASK_SEQ_START,
                 (((data >> 5) as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ,
                 ((data as u8) & MASK_SEQ_CONT_DATA) | MASK_SEQ | MASK_SEQ_END,
             ];
@@ -79,8 +78,9 @@ impl <I> EncodeUnchecked<I>
     }
 }
 
-impl <I> Iterator for EncodeUnchecked<I>
-    where I: Iterator<Item=u32>
+impl<I> Iterator for EncodeUnchecked<I>
+where
+    I: Iterator<Item = u32>,
 {
     type Item = u8;
 

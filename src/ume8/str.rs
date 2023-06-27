@@ -1,8 +1,8 @@
-use std::fmt::{Debug, Display, Formatter};
-use std::iter::Cloned;
 use crate::ume8::decode::{DecodeUnchecked, ToCharUnchecked};
 use crate::ume8::string::Ume8String;
 use crate::ume8::util::is_singleton;
+use std::fmt::{Debug, Display, Formatter};
+use std::iter::Cloned;
 
 #[repr(transparent)]
 #[derive(PartialOrd, PartialEq, Ord, Eq, Hash)]
@@ -42,13 +42,7 @@ impl Ume8Str {
     }
 
     pub fn chars(&self) -> ToCharUnchecked<DecodeUnchecked<Cloned<std::slice::Iter<u8>>>> {
-        unsafe {
-            ToCharUnchecked::new(
-                DecodeUnchecked::new(
-                    self.bytes.iter().cloned()
-                )
-            )
-        }
+        unsafe { ToCharUnchecked::new(DecodeUnchecked::new(self.bytes.iter().cloned())) }
     }
 
     // TODO
@@ -61,7 +55,8 @@ impl Ume8Str {
             return true;
         }
 
-        self.bytes.windows(other.bytes.len())
+        self.bytes
+            .windows(other.bytes.len())
             .any(|chunk| &other.bytes == chunk)
     }
 
@@ -99,8 +94,7 @@ impl Ume8Str {
     // }
 
     pub fn is_ascii(&self) -> bool {
-        self.bytes.iter()
-            .all(is_singleton)
+        self.bytes.iter().all(is_singleton)
     }
 }
 

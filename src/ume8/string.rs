@@ -1,10 +1,10 @@
+use crate::ume8::encode::EncodeUnchecked;
+use crate::ume8::str::Ume8Str;
 use std::borrow::{Borrow, BorrowMut};
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Deref, DerefMut, Index, IndexMut, RangeFull};
 use std::str::FromStr;
 use std::string::String;
-use crate::ume8::encode::EncodeUnchecked;
-use crate::ume8::str::Ume8Str;
 
 #[repr(transparent)]
 #[derive(PartialOrd, PartialEq, Ord, Eq, Hash)]
@@ -14,9 +14,7 @@ pub struct Ume8String {
 
 impl Ume8String {
     pub fn new() -> Self {
-        Self {
-            bytes: Vec::new(),
-        }
+        Self { bytes: Vec::new() }
     }
 
     pub fn with_capacity(capacity: usize) -> Self {
@@ -26,9 +24,7 @@ impl Ume8String {
     }
 
     pub unsafe fn from_bytes_unchecked(bytes: Vec<u8>) -> Self {
-        Self {
-            bytes
-        }
+        Self { bytes }
     }
 
     pub fn into_bytes(self) -> Vec<u8> {
@@ -56,9 +52,8 @@ impl Ume8String {
     }
 
     pub fn push(&mut self, ch: char) {
-        self.bytes.extend(
-            EncodeUnchecked::new([ch as u32].into_iter())
-        );
+        self.bytes
+            .extend(EncodeUnchecked::new([ch as u32].into_iter()));
     }
 
     pub fn push_string(&mut self, string: Self) {
@@ -158,7 +153,7 @@ impl IndexMut<RangeFull> for Ume8String {
 impl Clone for Ume8String {
     fn clone(&self) -> Self {
         Self {
-            bytes: self.bytes.clone()
+            bytes: self.bytes.clone(),
         }
     }
 
@@ -186,45 +181,40 @@ impl Debug for Ume8String {
 }
 
 impl Extend<Ume8String> for Ume8String {
-    fn extend<T: IntoIterator<Item=Ume8String>>(&mut self, iter: T) {
+    fn extend<T: IntoIterator<Item = Ume8String>>(&mut self, iter: T) {
         iter.into_iter()
             .for_each(|string| self.bytes.extend(string.bytes));
     }
 }
 
-impl <'a> Extend<&'a Ume8String> for Ume8String {
-    fn extend<T: IntoIterator<Item=&'a Ume8String>>(&mut self, iter: T) {
+impl<'a> Extend<&'a Ume8String> for Ume8String {
+    fn extend<T: IntoIterator<Item = &'a Ume8String>>(&mut self, iter: T) {
         iter.into_iter()
             .for_each(|string| self.bytes.extend_from_slice(&string.bytes));
     }
 }
 
 impl Extend<char> for Ume8String {
-    fn extend<T: IntoIterator<Item=char>>(&mut self, iter: T) {
-        self.bytes.extend(
-            EncodeUnchecked::new(
-                iter.into_iter()
-                    .map(|data| data as u32)
-            )
-        );
+    fn extend<T: IntoIterator<Item = char>>(&mut self, iter: T) {
+        self.bytes.extend(EncodeUnchecked::new(
+            iter.into_iter().map(|data| data as u32),
+        ));
     }
 }
 
-impl <'a> Extend<&'a char> for Ume8String {
-    fn extend<T: IntoIterator<Item=&'a char>>(&mut self, iter: T) {
-        self.bytes.extend(
-            EncodeUnchecked::new(
-                iter.into_iter()
-                    .map(|data| *data as u32)
-            )
-        );
+impl<'a> Extend<&'a char> for Ume8String {
+    fn extend<T: IntoIterator<Item = &'a char>>(&mut self, iter: T) {
+        self.bytes.extend(EncodeUnchecked::new(
+            iter.into_iter().map(|data| *data as u32),
+        ));
     }
 }
 
-impl <I> FromIterator<I> for Ume8String
-    where Ume8String: Extend<I>
+impl<I> FromIterator<I> for Ume8String
+where
+    Ume8String: Extend<I>,
 {
-    fn from_iter<T: IntoIterator<Item=I>>(iter: T) -> Self {
+    fn from_iter<T: IntoIterator<Item = I>>(iter: T) -> Self {
         let mut string = Ume8String::new();
         string.extend(iter);
         string
