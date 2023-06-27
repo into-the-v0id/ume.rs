@@ -1,8 +1,14 @@
-pub mod encode;
-pub mod decode;
-pub mod string;
-pub mod str;
-pub mod util;
+mod encode;
+mod decode;
+mod string;
+mod str;
+mod util;
+
+pub use self::encode::*;
+pub use self::decode::*;
+pub use self::string::*;
+pub use self::str::*;
+pub use self::util::*;
 
 const MASK_SEQ: u8 = 0b10000000;
 const MASK_SEQ_START: u8 = 0b01000000;

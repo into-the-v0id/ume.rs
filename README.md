@@ -35,8 +35,8 @@ ume = { git = "https://github.com/into-the-v0id/ume.rs" }
 
 Strings:
 ```rust
-use ume::ume8::string::Ume8String;
-use ume::ume8::str::Ume8Str;
+use ume::ume8::Ume8String;
+use ume::ume8::Ume8Str;
 
 pub fn main() {
     let string: Ume8String = Ume8String::from("aöӕธ💻");
@@ -49,8 +49,8 @@ pub fn main() {
 
 Streams:
 ```rust
-use ume::ume8::decode::DecodeUnchecked;
-use ume::ume8::encode::EncodeUnchecked;
+use ume::ume8::DecodeUnchecked;
+use ume::ume8::EncodeUnchecked;
 
 pub fn main() {
     let data = vec![
