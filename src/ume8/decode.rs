@@ -79,12 +79,12 @@ impl <I> DoubleEndedIterator for DecodeUnchecked<I>
             let prev_byte = self.iter.next_back().unwrap();
 
             if prev_byte & MASK_SEQ_START != 0 {
-                data = data | ((prev_byte & MASK_SEQ_START_DATA) as u32) << bit_count;
+                data |= ((prev_byte & MASK_SEQ_START_DATA) as u32) << bit_count;
 
                 break;
             }
 
-            data = data | ((prev_byte & MASK_SEQ_CONT_DATA) as u32) << bit_count;
+            data |= ((prev_byte & MASK_SEQ_CONT_DATA) as u32) << bit_count;
             bit_count += 5;
         }
 
