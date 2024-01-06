@@ -2,7 +2,7 @@ use crate::ume8::util;
 use crate::ume8::{
     MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_END, MASK_SEQ_START, MASK_SEQ_START_DATA,
 };
-use std::iter::{FusedIterator, DoubleEndedIterator, Iterator};
+use std::iter::{DoubleEndedIterator, FusedIterator, Iterator};
 
 #[derive(Clone)]
 #[must_use = "iterators are lazy and do nothing unless consumed"]
@@ -92,10 +92,7 @@ where
     }
 }
 
-impl<I> FusedIterator for DecodeUnchecked<I> where
-    I: Iterator<Item = u8> + FusedIterator<Item = u8>
-{
-}
+impl<I> FusedIterator for DecodeUnchecked<I> where I: Iterator<Item = u8> + FusedIterator<Item = u8> {}
 
 #[derive(Clone)]
 pub struct ToCharUnchecked<Iter>
@@ -122,9 +119,7 @@ where
     type Item = char;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter
-            .next()
-            .map(|data| char::from_u32(data).unwrap())
+        self.iter.next().map(|data| char::from_u32(data).unwrap())
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -142,9 +137,7 @@ where
     where
         Self: Sized,
     {
-        self.iter
-            .last()
-            .map(|data| char::from_u32(data).unwrap())
+        self.iter.last().map(|data| char::from_u32(data).unwrap())
     }
 }
 
@@ -168,11 +161,7 @@ where
     }
 }
 
-impl<Iter> FusedIterator for ToCharUnchecked<Iter>
-where
-    Iter: FusedIterator<Item = u32>,
-{
-}
+impl<Iter> FusedIterator for ToCharUnchecked<Iter> where Iter: FusedIterator<Item = u32> {}
 
 #[cfg(test)]
 mod tests {

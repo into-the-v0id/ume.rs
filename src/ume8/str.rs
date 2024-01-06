@@ -15,12 +15,10 @@ impl Ume8Str {
         s.as_ref()
     }
 
-    #[allow(unused_unsafe)]
     pub(crate) unsafe fn from_inner(inner: &[u8]) -> &Self {
         unsafe { std::mem::transmute(inner) }
     }
 
-    #[allow(unused_unsafe)]
     pub(crate) unsafe fn from_inner_mut(inner: &mut [u8]) -> &mut Self {
         unsafe { std::mem::transmute(inner) }
     }
