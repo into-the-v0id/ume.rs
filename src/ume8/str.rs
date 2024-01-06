@@ -42,7 +42,7 @@ impl Ume8Str {
     }
 
     pub fn chars(&self) -> ToCharUnchecked<DecodeUnchecked<Cloned<std::slice::Iter<u8>>>> {
-        unsafe { ToCharUnchecked::new(DecodeUnchecked::new(self.bytes.iter().cloned())) }
+        ToCharUnchecked::new(DecodeUnchecked::new(self.bytes.iter().cloned()))
     }
 
     // TODO

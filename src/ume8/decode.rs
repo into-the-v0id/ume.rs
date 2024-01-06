@@ -110,7 +110,7 @@ where
     Iter: Iterator<Item = u32>,
 {
     #[inline]
-    pub unsafe fn new(iter: Iter) -> Self {
+    pub fn new(iter: Iter) -> Self {
         Self { iter }
     }
 }
@@ -124,7 +124,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         self.iter
             .next()
-            .map(|data| unsafe { char::from_u32_unchecked(data) })
+            .map(|data| char::from_u32(data).unwrap())
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -144,7 +144,7 @@ where
     {
         self.iter
             .last()
-            .map(|data| unsafe { char::from_u32_unchecked(data) })
+            .map(|data| char::from_u32(data).unwrap())
     }
 }
 
@@ -155,7 +155,7 @@ where
     fn next_back(&mut self) -> Option<Self::Item> {
         self.iter
             .next_back()
-            .map(|data| unsafe { char::from_u32_unchecked(data) })
+            .map(|data| char::from_u32(data).unwrap())
     }
 }
 
@@ -187,8 +187,7 @@ mod tests {
                 .map(|data| char::from_u32(data).unwrap())
                 .collect::<Vec<char>>();
 
-            let decoder =
-                unsafe { ToCharUnchecked::new(DecodeUnchecked::new(encoded.clone().into_iter())) };
+            let decoder = ToCharUnchecked::new(DecodeUnchecked::new(encoded.clone().into_iter()));
             let decoder_data = decoder.collect::<Vec<char>>();
 
             assert_eq!(decoder_data, decoded_chars);
@@ -204,8 +203,7 @@ mod tests {
                 .rev()
                 .collect::<Vec<char>>();
 
-            let decoder =
-                unsafe { ToCharUnchecked::new(DecodeUnchecked::new(encoded.clone().into_iter())) };
+            let decoder = ToCharUnchecked::new(DecodeUnchecked::new(encoded.clone().into_iter()));
             let decoder_data = decoder.rev().collect::<Vec<char>>();
 
             assert_eq!(decoder_data, decoded_chars_reversed);
