@@ -2,20 +2,20 @@ use crate::ume8::util;
 use crate::ume8::{
     MASK_SEQ, MASK_SEQ_CONT_DATA, MASK_SEQ_END, MASK_SEQ_START, MASK_SEQ_START_DATA,
 };
-use std::iter::FusedIterator;
+use std::iter::{FusedIterator, DoubleEndedIterator, Iterator};
 
 #[derive(Clone)]
 #[must_use = "iterators are lazy and do nothing unless consumed"]
 pub struct DecodeUnchecked<I>
 where
-    I: DoubleEndedIterator<Item = u8>,
+    I: Iterator<Item = u8>,
 {
     pub iter: I,
 }
 
 impl<I> DecodeUnchecked<I>
 where
-    I: DoubleEndedIterator<Item = u8>,
+    I: Iterator<Item = u8>,
 {
     #[inline]
     pub fn new(iter: I) -> Self {
@@ -25,7 +25,7 @@ where
 
 impl<I> Iterator for DecodeUnchecked<I>
 where
-    I: DoubleEndedIterator<Item = u8>,
+    I: Iterator<Item = u8>,
 {
     type Item = u32;
 
@@ -58,10 +58,6 @@ where
 
     fn count(self) -> usize {
         util::count_sequences_unchecked(self.iter)
-    }
-
-    fn last(mut self) -> Option<Self::Item> {
-        self.next_back()
     }
 }
 
@@ -97,7 +93,7 @@ where
 }
 
 impl<I> FusedIterator for DecodeUnchecked<I> where
-    I: DoubleEndedIterator<Item = u8> + FusedIterator<Item = u8>
+    I: Iterator<Item = u8> + FusedIterator<Item = u8>
 {
 }
 
@@ -172,7 +168,11 @@ where
     }
 }
 
-impl<Iter> FusedIterator for ToCharUnchecked<Iter> where Iter: FusedIterator<Item = u32> {}
+impl<Iter> FusedIterator for ToCharUnchecked<Iter>
+where
+    Iter: FusedIterator<Item = u32>,
+{
+}
 
 #[cfg(test)]
 mod tests {
